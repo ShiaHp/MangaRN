@@ -45,13 +45,13 @@ app.get('/api/v1', (req, res) => {
 })
 
 
-app.use('/api/v1/user',userRouter)
+app.use('/api/v1/users',userRouter)
 
 const start = async () => {
     try {
       await connectDB('mongodb+srv://shiawase:shiawase@cluster0.h4ezk.mongodb.net/AuthHero?retryWrites=true&w=majority');
-      app.listen( process.env.PORT, (req, res) => {
-        console.log(`Server is running on port ${process.env.PORT}`);
+      app.listen( 3033, (req, res) => {
+        console.log(`Server is running on port ${3033}`);
         console.log(`Connect to DB`);
       });
     } catch (error) {

@@ -51,6 +51,7 @@ const register = async (req, res, next) => {
 
 const login = async (req, res,) => {
     const { email, password } = req.body;
+    console.log(email, password)
     if (!email || !password) {
         return res.status(403).json({
             message: 'Invalid email or password'
@@ -121,5 +122,7 @@ const updateProfile = async(req, res) => {
     }
   
 }
+
+
 module.exports = { login, register, profile,updateProfile }
 

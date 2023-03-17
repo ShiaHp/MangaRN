@@ -9,6 +9,31 @@ const UserName = new Schema({
         trim: true,
         // required: [true, "Hero name is required"]
     },
+    favoritesManga:[{ type: String}],
+    readingHistory: [
+        {
+          mangaTitle: {
+            type: String,
+            required: true,
+          },
+          mangaId : {
+            type: String,
+            required: true,
+          },
+          lastChapter: {
+            type: Number,
+            required: true,
+          },
+          lastPage: {
+            type: Number,
+            required: true,
+          },
+          updatedAt: {
+            type: Date,
+            default: Date.now(),
+          },
+        },
+      ],
     lastName: {
         type: String,
     },
@@ -22,8 +47,8 @@ const UserName = new Schema({
     },
     gender: {
         type: String,
-        enum: ['male', 'female', 'other'],
-        default: 'male'
+        enum: ['Male', 'female', 'other'],
+        default: 'Male'
     }
     ,
     age : {
