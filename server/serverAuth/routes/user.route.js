@@ -34,6 +34,27 @@ router.put('/reading-history/:userId', async (req, res) => {
     }
     res.json(user.readingHistory);
 });
+router.patch('/reading-history/:userId', async(req,res) => {
+    try {
+        const {  mangaId } = req.body;
+        await User.findByIdAndUpdate(
+            req.params.userId,
+            {
+                $pull: {
+                    readingHistory: {
+                        mangaId: mangaId
+                    },
+                },
+            },
+            { new: true },
+        );
+        res.status(200).json({
+            message: 'Success'
+        })
+    }catch(err) {
+        res.status(404).json({ message: err.message});
+    }
+})
 router.get('/favorites/:userId', async (req, res) => {
     try {
         const user = await User.findById(req.params.userId);
@@ -47,16 +68,25 @@ router.get('/favorites/:userId', async (req, res) => {
 })
 router.put('/favorites/:userId', async (req, res) => {
     try {
-        const {newMangaId} = req.body
+        const { newMangaId } = req.body
         const userId = req.params.userId
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        user.favoritesManga.push(newMangaId);
+        // check if id manga is already in the list, if not add it to, or remove it
+        if (user.favoritesManga.includes(newMangaId)) {
+            const index = user.favoritesManga.indexOf(newMangaId);
+            if (index > -1) { 
+                user.favoritesManga.splice(index, 1); 
+            }
+        } else {
+            user.favoritesManga.push(newMangaId);
+        }
+
         await user.save();
-        res.status(200).json({ message: 'Success' , user: user });
-    } catch (e) { 
+        res.status(200).json({ message: 'Success', user: user });
+    } catch (e) {
         res.status(404).send(e.message)
     }
 })

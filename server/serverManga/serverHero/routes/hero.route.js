@@ -3,18 +3,21 @@ const router = express.Router();
 const {
   getManga,
   listImageChapter,
-  getRandomManga
+  getRandomManga,
+  getCover,
+  getListChapter,
+  detailManga
 } = require("../controllers/hero.controller.js");
 const auth = require("../middleware/verifyToken.js");
-const upload = require('../utils/multer')
 
-
-// upload.single('image'),
+// get manga with search/filter parameters
 router.route('/').get(getManga)
-router.route('/:id')
+// get detail of manga
+router.route('/:id').get(detailManga)
 router.route('/random').get(getRandomManga)
-router.route('/cover/:id')
-router.route('/chapter/:chapterId').get(listImageChapter)
+router.route('/cover/:id').get(getCover)
+router.route('/chapter/list/:mangaId').get(getListChapter)
+router.route('/chapter/image/:chapterId').get(listImageChapter)
 
 
 

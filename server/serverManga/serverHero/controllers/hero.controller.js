@@ -1,7 +1,5 @@
-const { MANGA } = require('@consumet/extensions')
-const axios = require('axios')
-const mangadex = new MANGA.MangaDex();
 
+const axios = require('axios')
 const baseUrl = `https://api.mangadex.org/`
 const baseUploadUrl = `https://uploads.mangadex.org/`
 
@@ -10,31 +8,55 @@ module.exports = {
   getListChapter: async (req, res) => {
     try {
       // https://api.mangadex.org/manga/:idManga/feed
-      const mangaId = req.params.id;
+      const mangaId = req.params.mangaId;
       const listChapter = await axios({
         method: 'get',
-        url: `${baseUrl}/manga/${mangaId}/feed`
+        url: `${baseUrl}manga/${mangaId}/feed`
       })
-
+      res.status(200).json({
+        message: 'Success',
+        data: listChapter.data
+      })
     } catch (e) {
-      res.status(StatusCodes.EXPECTATION_FAILED).json({
-        message: 'Error'
+      res.status(404).json({
+        message: 'Error',
       })
     }
   },
   getCover: async (req, res) => {
-    // https://uploads.mangadex.org/covers/:manga-id/:cover-filename
-    // https://uploads.mangadex.org/covers/f98660a1-d2e2-461c-960d-7bd13df8b76d/0e161616-96f5-4218-bb8c-5e1a0602a750.png
-    //0e161616-96f5-4218-bb8c-5e1a0602a750.png
+    // lÀM SAO ĐỂ LẤY ĐƯỢC COVER-FILENAME
+    // PHẢI GỌI API GET MANGA THÊM 1 LẦN NỮA THÌ MỚI LẤY ĐƯỢC :))
+    try{
+      const idManga = req.params.id;
+      let coverFileName;
+      const response = await axios({
+        method: 'GET',
+        url: `${baseUrl}/manga/${idManga}?includes[]=cover_art`,
+      })
+      for(let item of response.data.data.relationships){
+        if(item.type === "cover_art"){
+          coverFileName= item.attributes.fileName
+        }
+      }
+      res.status(200).json({
+        method: 'GET',
+        data: `${baseUploadUrl}covers/${idManga}/${coverFileName}`
+      })
+    } catch(e){
+      res.status(404).json({
+        message: 'Error',
+      })
+    }
   },
   listImageChapter: async (req, res) => {
     try {
       const idChapter = req.params.chapterId
+
       const data = await axios({
         method: 'get',
-        url: `${baseUrl}/at-home/server/${idChapter}`
+        url: `${baseUrl}at-home/server/${idChapter}`
       })
-
+  
       const hash = data.data.chapter.hash
       const images = data.data.chapter.data
 
@@ -69,9 +91,8 @@ module.exports = {
       }
       // sort data
     const order = {
-      year: 'desc',
+      // year: 'desc',
       rating: 'desc',
-      followedCount: 'desc',
       createdAt: 'desc',
       updatedAt: 'desc',
     };
@@ -101,25 +122,6 @@ module.exports = {
       res.status(404).json({ e: e.message })
     }
   },
-  filterByTag: async (req, res) => {
-    try {
-      // const includedTagNames = ['Action', 'Romance'];
-      // const excludedTagNames = ['Harem'];
-
-      const resp = await axios({
-        method: 'GET',
-        url: `${baseUrl}/manga`,
-        params: {
-
-        }
-      });
-
-      console.log(resp.data.data.map(manga => manga.id));
-
-    } catch (e) {
-      res.status(404).json({ e: e.message })
-    }
-  },
   getRandomManga: async(req,res) => {
     try {
       // https://api.mangadex.org/manga/random
@@ -131,6 +133,24 @@ module.exports = {
         data: response.data
       })
     } catch(e){
+      res.status(404).json({ e: e.message })
+    }
+  },
+  detailManga: async(req,res) =>{
+    try {
+      const idManga = req.params.id;
+      const response = await axios({
+        method: 'GET',
+        url: `${baseUrl}/manga/${idManga}`,
+        })
+  
+        res.status(200).json(
+          {
+            message: 'Success',
+            data: response.data
+          }
+        )
+    } catch(e) {
       res.status(404).json({ e: e.message })
     }
   }
