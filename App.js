@@ -36,7 +36,8 @@ const theme = {
     "shadow": "#000000",
     "surfaceTint": "#A1C9FF",
     "outlineVariant": "#43474E",
-    "scrim": "#000000"
+    "scrim": "#000000",
+    "neuralVariant" : "#4E535A",
   }
 }
 export default function App() {
