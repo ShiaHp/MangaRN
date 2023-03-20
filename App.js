@@ -2,12 +2,11 @@ import { StatusBar } from 'expo-status-bar';
 import { Provider as PaperProvider, MD3DarkTheme as DefaultTheme } from 'react-native-paper';
 import { StyleSheet, Text, View } from 'react-native';
 import { Provider as ReduxProvider } from 'react-redux';
-import { LoginView } from './views'
-import store from './redux/reducer/store';
+import {LoginView} from './views'
 const theme = {
   ...DefaultTheme,
-  myOwnProperty: true,
-  colors: {
+  myOwnProperty : true,
+  colors : {
     "primary": "#A1C9FF",
     "primaryContainer": "#00487F",
     "onPrimary": "#00325A",
@@ -38,7 +37,7 @@ const theme = {
     "surfaceTint": "#A1C9FF",
     "outlineVariant": "#43474E",
     "scrim": "#000000",
-    "neuralVariant": "#4E535A",
+    "neuralVariant" : "#4E535A",
   }
 }
 export default function App() {
@@ -47,18 +46,18 @@ export default function App() {
       <PaperProvider theme={theme}>
         <View style={styles.container} >
           <StatusBar style="auto" />
-          <LoginView />
+          <LoginView/>
         </View>
       </PaperProvider>
     </ReduxProvider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: theme.colors.background,
+//     alignItems: "center",
+//     justifyContent: "center",
+//   },
+// });
