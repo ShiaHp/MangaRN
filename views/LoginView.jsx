@@ -1,15 +1,15 @@
 import { Pressable, Text, View } from "react-native";
 import { withTheme, TextInput, Button } from "react-native-paper";
-import style from "./Style"
+import { loginStyle } from "./Style"
 
 function LoginView({ navigation }) {
     return (
-        <View style={style(style).container}>
-            <Text style={style(style).logoText}>KomicBook</Text>
+        <View style={loginStyle().container}>
+            <Text style={loginStyle().logoText}>KomicBook</Text>
             <View>
-                <Text style={style(style).headerText}>Login</Text>
+                <Text style={loginStyle().headerText}>Login</Text>
                 <TextInput
-                    style={style(style).input}
+                    style={loginStyle().input}
                     mode="flat"
                     underlineColor="transparent"
                     activeUnderlineColor="transparent"
@@ -17,27 +17,27 @@ function LoginView({ navigation }) {
                     left={<TextInput.Icon icon="account" />}
                 ></TextInput>
                 <TextInput
-                    style={style(style).input}
+                    style={loginStyle().input}
                     mode="flat"
                     underlineColor="transparent"
                     activeUnderlineColor="transparent"
                     placeholder="Password"
                     left={<TextInput.Icon icon="lock" />}
                 ></TextInput>
-                <Text style={style(style).forgotText}>Forgot your password?</Text>
+                <Text style={loginStyle().forgotText}>Forgot your password?</Text>
                 <Button mode="contained">Login</Button>
                 <Button
                     mode="outlined"
-                    style={style(style).button}
+                    style={loginStyle().button}
                     onPress={() => navigation.navigate("Register")}
                 >
                     Register
                 </Button>
                 <Pressable>
-                    <Text style={style(style).guestText} onPress={() => navigation.navigate("Home")}>Join As Guest</Text>
+                    <Text style={loginStyle().guestText} onPress={() => navigation.navigate("Home")}>Join As Guest</Text>
                 </Pressable>
             </View>
         </View>
     );
 }
-export default withTheme(LoginView);
+export default LoginView;
