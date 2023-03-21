@@ -1,9 +1,9 @@
 import { Text, View } from "react-native";
 import { withTheme, TextInput, Button } from "react-native-paper";
-import loginStyle from "./Style";
+import Style from "./Style";
 
 function RegisterView({ navigation }) {
-    const style = withTheme(loginStyle)
+    const style = Style()
     return (
         <View style={style.container}>
             <Text style={style.logoText}>KomicBook</Text>
