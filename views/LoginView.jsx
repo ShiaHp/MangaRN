@@ -1,78 +1,55 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+import { useState } from 'react';
 import { withTheme, TextInput, Button } from "react-native-paper";
+import { useSelector, useDispatch } from 'react-redux';
+import { login,getUser } from '../redux/reducer/user';
+import style from "./Style"
 
-function LoginView({ theme, navigation }) {
-    const style = StyleSheet.create({
-        container: {
-            flex: 1,
-            backgroundColor: theme.colors.background,
-            alignItems: "center",
-            justifyContent: "center",
-        },
-        input: {
-            borderRadius: 5,
-            width: 300,
-            backgroundColor: theme.colors.neuralVariant,
-            color: theme.colors.onSurfaceVariant,
-            marginTop: 10,
-        },
-        button: {
-            marginTop: 10,
-        },
-        headerText: {
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: 26,
-            marginTop: 30,
-        },
-        logoText: {
-            color: theme.colors.primary,
-            fontWeight: 900,
-            fontSize: 40,
-            marginBottom: 40,
-        },
-        forgotText: {
-            color: theme.colors.secondary,
-            marginVertical: 10,
-        },
-        guessText: {
-            textDecorationLine: "underline",
-            color: theme.colors.secondary,
-            textAlign: "center",
-            marginTop: 20,
-        },
-    });
+function LoginView({ navigation }) {
+    const [email,setEmail] = useState('test@123.com')
+    const [password, setPassword] = useState('123456')
+    const dispatch = useDispatch()
+    const onLoginPressed = ()=>{
+        dispatch(login({email,password}))
+
+    }
     return (
-        <View style={style.container}>
-            <Text style={style.logoText}>KomicBook</Text>
+        <View style={style(style).container}>
+            <Text style={style(style).logoText}>KomicBook</Text>
             <View>
-                <Text style={style.headerText}>Login</Text>
+                <Text style={style(style).headerText}>Login</Text>
                 <TextInput
-                    style={style.input}
+                    style={style(style).input}
+                    value={email}
+                    onChangeText={setEmail}
                     mode="flat"
                     underlineColor="transparent"
                     activeUnderlineColor="transparent"
-                    placeholder="Username"
+                    placeholder="Email"
                     left={<TextInput.Icon icon="account" />}
                 ></TextInput>
                 <TextInput
-                    style={style.input}
+                    style={style(style).input}
+                    value={password}
+                    onChangeText={setPassword}
                     mode="flat"
                     underlineColor="transparent"
                     activeUnderlineColor="transparent"
                     placeholder="Password"
                     left={<TextInput.Icon icon="lock" />}
                 ></TextInput>
-                <Text style={style.forgotText}>Forgot your password?</Text>
-                <Button mode="contained">Login</Button>
+                <Text style={style(style).forgotText}>Forgot your password?</Text>
+                <Button mode="contained" onPress={()=>onLoginPressed()}>Login</Button>
                 <Button
                     mode="outlined"
-                    style={style.button}
+                    style={style(style).button}
                     onPress={() => navigation.navigate("Register")}
                 >
                     Register
                 </Button>
-                <Text style={style.guessText}>Join As Guest</Text>
+                <Pressable>
+                    <Text style={style(style).guestText} onPress={() => navigation.navigate("Home")}>Join As Guest</Text>
+                </Pressable>
             </View>
         </View>
     );

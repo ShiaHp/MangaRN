@@ -1,8 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+import { storeData, getData } from "../../features/asyncStorage";
+
 const initialState = {
-    user : {}
+    value : null
   }
 export const userSlice = createSlice({
     name : 'user',
@@ -10,39 +12,48 @@ export const userSlice = createSlice({
 
     reducers :{
         changeUser : (state,action)=>{
-            state.user = action.payload
-            console.log(state.user);
-        }
+            state.value = action.payload
+            storeData('user',state.value)
+        },
     }
 })
 
-export const {changeUser} = userSlice.actions
+export const {changeUser, getUser} = userSlice.actions
 
-export const getUserFromAsyncStore = ()=>{
-    
+export const getUserFromAsyncStore = ()=>(dispatch)=>{
+    // storeData('user',null)
+    getData('user')  
+    .then((value)=>{
+        console.log(value);
+        dispatch(changeUser(value)) 
+    })
+    // .then((value)=>{
+    //     console.log('b');
+    //     console.log(value);
+    // })
 }
 
 export const login = (payload)=>(dispatch)=>{
     axios({
         method : "POST",
-        url : 'http://localhost:3033/api/v1/users/login',
+        url : 'http://192.168.1.8:3033/api/v1/users/login',
         data : {
             email : payload.email,
             password : payload.password,
         }
     })
     .then((data)=>{
-        console.log(data);
         dispatch(changeUser(data.data.user))
+        
     })
     .catch((err)=>{
-        console.log(err);
+        console.log(err); 
     })
 }
-export const register = (payload)=>(dispatch)=>{
+export const register = (dispatch)=>{
     axios({
         method : "POST",
-        url : 'http://localhost:3033/api/v1/users/register',
+        url : 'http://192.168.1.8:3033/api/v1/users/register',
         data : {
             email : payload.email,
             password : payload.password,
