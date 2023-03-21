@@ -7,7 +7,7 @@ const storeData = async(name,value)=>{
     } catch (error) {
         console.log(error);
     }
-}   
+}    
 
 const getData = async(name)=>{
     try {

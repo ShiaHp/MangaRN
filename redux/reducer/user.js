@@ -15,22 +15,21 @@ export const userSlice = createSlice({
             state.value = action.payload
             storeData('user',state.value)
         },
+        logOut : (state,action)=>{
+            state.value = null,
+            storeData('user',null)
+        }
     }
 })
 
-export const {changeUser, getUser} = userSlice.actions
+export const {changeUser, logOut} = userSlice.actions
 
 export const getUserFromAsyncStore = ()=>(dispatch)=>{
-    // storeData('user',null)
     getData('user')  
     .then((value)=>{
         console.log(value);
         dispatch(changeUser(value)) 
     })
-    // .then((value)=>{
-    //     console.log('b');
-    //     console.log(value);
-    // })
 }
 
 export const login = (payload)=>(dispatch)=>{
