@@ -10,17 +10,17 @@ function LoginView({ navigation }) {
                 <Text style={loginStyle().headerText}>Login</Text>
                 <TextInput
                     style={loginStyle().input}
-                    mode="flat"
-                    underlineColor="transparent"
-                    activeUnderlineColor="transparent"
+                    mode="outlined"
+                    // underlineColor="transparent"
+                    // activeUnderlineColor="transparent"
                     placeholder="Username"
                     left={<TextInput.Icon icon="account" />}
                 ></TextInput>
                 <TextInput
                     style={loginStyle().input}
-                    mode="flat"
-                    underlineColor="transparent"
-                    activeUnderlineColor="transparent"
+                    mode="outlined"
+                    // underlineColor="transparent"
+                    // activeUnderlineColor="transparent"
                     placeholder="Password"
                     left={<TextInput.Icon icon="lock" />}
                 ></TextInput>
