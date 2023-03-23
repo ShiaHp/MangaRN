@@ -6,9 +6,7 @@ import {
 import theme from "./theme";
 import { StyleSheet, Text, View } from "react-native";
 import { Provider as ReduxProvider } from "react-redux";
-import LoginView from "./views/LoginView";
-import RegisterView from "./views/RegisterView";
-// import HomeView from "./views/HomeView";
+import {LoginView, RegisterView, HomeView} from "./views";
 import * as native from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
@@ -28,7 +26,7 @@ export default function App() {
                 >
                     <Stack.Screen name='Login' component={LoginView} />
                     <Stack.Screen name='Register' component={RegisterView} />
-                    {/* <Stack.Screen name="Home" component={HomeView} /> */}
+                    <Stack.Screen name="Home" component={HomeView} />
                 </Stack.Navigator>
             </native.NavigationContainer>
         </PaperProvider>
