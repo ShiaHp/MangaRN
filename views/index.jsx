@@ -1,4 +1,4 @@
 import LoginView from "./LoginView"
 import RegisterView from "./RegisterView"
-
-// export {LoginView}
+import HomeView from "./HomeView"
+export {LoginView, RegisterView, HomeView}
