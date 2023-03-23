@@ -3,22 +3,13 @@ import { useTheme } from "react-native-paper";
 const loginStyle = (theme = useTheme()) => ({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background,
         alignItems: "center",
         justifyContent: "center",
     },
     input: {
-        borderRadius: 5,
+        // borderRadius: 5,
         width: 300,
-        backgroundColor: theme.colors.neuralVariant,
-        color: theme.colors.onSurfaceVariant,
-        marginTop: 10,
-    },
-    button: {
-        marginTop: 10,
-    },
-    headerText: {
-        color: "#fff",
+        marginTop: 10, "#fff",
         fontWeight: 700,
         fontSize: 26,
         marginTop: 30,
