@@ -3,7 +3,11 @@ import { useState } from 'react';
 import { withTheme, TextInput, Button } from "react-native-paper";
 import { useSelector, useDispatch } from 'react-redux';
 import { login, getUser } from '../redux/reducer/user';
+<<<<<<< HEAD
 import Style from "./Style"
+=======
+import { loginStyle } from "./Style"
+>>>>>>> 6e0dc9be679a0a6f552c7c26dea22a8329bba685
 
 function LoginView({ navigation }) {
     const [email,setEmail] = useState('test@123.com')
