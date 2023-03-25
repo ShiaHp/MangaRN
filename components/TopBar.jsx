@@ -65,9 +65,9 @@ function TopBar() {
 const styles = (theme) =>
   StyleSheet.create({
     appbarContainer: {
-      position: "absolute",
-      top: 20,
-      width: "100%",
+      // position: "absolute",
+      // top: 20,
+      // width: "100%",
     },
     modalContent: {
       //   textAlign: "center",
