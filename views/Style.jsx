@@ -1,15 +1,27 @@
 import { useTheme } from "react-native-paper";
 
 const loginStyle = (theme = useTheme()) => ({
+    flexContainer: {
+        flex: 1,
+        backgroundColor: theme.colors.darkContainer,
+        justifyContent: "center",
+        alignItems: "center",
+    },
     container: {
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
     },
     input: {
-        // borderRadius: 5,
+        borderRadius: 5,
         width: 300,
-        marginTop: 10, "#fff",
+        marginTop: 10,
+    },
+    button: {
+        marginTop: 10,
+    },
+    headerText: {
+        color: "#fff",
         fontWeight: 700,
         fontSize: 26,
         marginTop: 30,

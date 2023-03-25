@@ -1,15 +1,16 @@
 import { Text, View } from "react-native";
 import { withTheme, TextInput, Button } from "react-native-paper";
-import { loginStyle } from "./Style";
+import Style from "./Style";
 
 function RegisterView({ navigation }) {
+    const style = Style()
     return (
-        <View style={loginStyle().container}>
-            <Text style={loginStyle().logoText}>KomicBook</Text>
+        <View style={style.flexContainer}>
+            <Text style={style.logoText}>KomicBook</Text>
             <View>
-                <Text style={loginStyle().headerText}>Register</Text>
+                <Text style={style.headerText}>Register</Text>
                 <TextInput
-                    style={loginStyle().input}
+                    style={style.input}
                     mode='flat'
                     underlineColor='transparent'
                     activeUnderlineColor='transparent'
@@ -17,7 +18,7 @@ function RegisterView({ navigation }) {
                     left={<TextInput.Icon icon='account' />}
                 ></TextInput>
                 <TextInput
-                    style={loginStyle().input}
+                    style={style.input}
                     mode='flat'
                     underlineColor='transparent'
                     activeUnderlineColor='transparent'
@@ -25,25 +26,25 @@ function RegisterView({ navigation }) {
                     left={<TextInput.Icon icon='lock' />}
                 ></TextInput>
                 <TextInput
-                    style={loginStyle().input}
+                    style={style.input}
                     mode='flat'
                     underlineColor='transparent'
                     activeUnderlineColor='transparent'
                     placeholder='Retype your password'
                     left={<TextInput.Icon icon='lock' />}
                 ></TextInput>
-                {/* <Text style={loginStyle().forgotText} >Forgot your password?</Text> */}
-                <Button mode='contained' style={loginStyle().button}>
+                {/* <Text style={style.forgotText} >Forgot your password?</Text> */}
+                <Button mode='contained' style={style.button}>
                     Register
                 </Button>
                 <Button
                     mode='outlined'
-                    style={loginStyle().button}
+                    style={style.button}
                     onPress={() => navigation.goBack()}
                 >
                     Back to login
                 </Button>
-                {/* <Text style={loginStyle().guestText}>Join As Guest</Text> */}
+                {/* <Text style={style.guestText}>Join As Guest</Text> */}
             </View>
         </View>
     );
