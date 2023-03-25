@@ -50,4 +50,4 @@ const loginStyle = () => {
     };
 };
 
-export { loginStyle };
+export default loginStyle;
