@@ -35,5 +35,6 @@ export default {
         outlineVariant: "#43474E",
         scrim: "#000000",
         neuralVariant: "#4E535A",
+        darkContainer : "#1A1C1E",
     },
 };

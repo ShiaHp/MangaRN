@@ -5,7 +5,7 @@ import Style from "./Style";
 function RegisterView({ navigation }) {
     const style = Style()
     return (
-        <View style={style.container}>
+        <View style={style.flexContainer}>
             <Text style={style.logoText}>KomicBook</Text>
             <View>
                 <Text style={style.headerText}>Register</Text>

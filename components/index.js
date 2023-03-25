@@ -1,3 +1,3 @@
 import BottomBar from "./BottomBar";
-
-export {BottomBar}
+import TopBar from "./TopBar";
+export {BottomBar, TopBar}

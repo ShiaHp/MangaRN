@@ -3,6 +3,8 @@ import axios from "axios";
 
 import { storeData, getData } from "../../features/asyncStorage";
 
+const url = 'http://192.168.1.10:3033/'
+
 const initialState = {
     value : null
   }
@@ -35,7 +37,7 @@ export const getUserFromAsyncStore = ()=>(dispatch)=>{
 export const login = (payload)=>(dispatch)=>{
     axios({
         method : "POST",
-        url : 'http://192.168.1.8:3033/api/v1/users/login',
+        url : `${url}api/v1/users/login`,
         data : {
             email : payload.email,
             password : payload.password,
@@ -52,7 +54,7 @@ export const login = (payload)=>(dispatch)=>{
 export const register = (dispatch)=>{
     axios({
         method : "POST",
-        url : 'http://192.168.1.8:3033/api/v1/users/register',
+        url : `${url}api/v1/users/register`,
         data : {
             email : payload.email,
             password : payload.password,

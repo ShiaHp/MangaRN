@@ -15,7 +15,7 @@ function LoginView({ navigation }) {
 
     }
     return (
-        <View style={style.container}>
+        <View style={style.flexContainer}>
             <Text style={style.logoText}>KomicBook</Text>
             <View>
                 <Text style={style.headerText}>Login</Text>
