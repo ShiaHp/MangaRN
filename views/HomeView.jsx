@@ -1,29 +1,152 @@
-import { withTheme, Button } from "react-native-paper";
-import { View, Text } from "react-native";
-import Style from "./Style";
-import { useDispatch } from "react-redux";
-import { logOut } from "../redux/reducer/user";
-import { BottomBar, TopBar } from "../components/";
-function HomeView() {
-  const dispatch = useDispatch();
-  const style = Style();
-  const onLogOutPressed = () => {
-    dispatch(logOut());
-  };
-  return (
-    <>
-      <View style={style.container}>
-        <View>
-          <TopBar />
-          {/* <Button mode="contained" onPress={onLogOutPressed}>
-            Log out
-          </Button> */}
+import React from "react";
+import { View, StyleSheet } from "react-native";
 
-          {/* <BottomBar/> */}
-        </View>
-      </View>
-    </>
-  );
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Text, BottomNavigation } from "react-native-paper";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { CommonActions } from "@react-navigation/native";
+
+const Tab = createBottomTabNavigator();
+
+export default function MyComponent() {
+    return (
+        <Tab.Navigator
+            screenOptions={{
+                headerShown: false,
+            }}
+            tabBar={({ navigation, state, descriptors, insets }) => (
+                <BottomNavigation.Bar
+                    navigationState={state}
+                    safeAreaInsets={insets}
+                    onTabPress={({ route, preventDefault }) => {
+                        const event = navigation.emit({
+                            type: "tabPress",
+                            target: route.key,
+                            canPreventDefault: true,
+                        });
+
+                        if (event.defaultPrevented) {
+                            preventDefault();
+                        } else {
+                            navigation.dispatch({
+                                ...CommonActions.navigate(
+                                    route.name,
+                                    route.params
+                                ),
+                                target: state.key,
+                            });
+                        }
+                    }}
+                    renderIcon={({ route, focused, color }) => {
+                        const { options } = descriptors[route.key];
+                        if (options.tabBarIcon) {
+                            return options.tabBarIcon({
+                                focused,
+                                color,
+                                size: 24,
+                            });
+                        }
+
+                        return null;
+                    }}
+                    getLabelText={({ route }) => {
+                        const { options } = descriptors[route.key];
+                        const label =
+                            options.tabBarLabel !== undefined
+                                ? options.tabBarLabel
+                                : options.title !== undefined
+                                ? options.title
+                                : route.title;
+
+                        return label;
+                    }}
+                />
+            )}
+        >
+            <Tab.Screen
+                name='Home'
+                component={HomeScreen}
+                options={{
+                    tabBarLabel: "Home",
+                    tabBarIcon: ({ color, size }) => {
+                        return <Icon name='home' size={size} color={color} />;
+                    },
+                }}
+            />
+            <Tab.Screen
+                name='Discover'
+                component={DiscScreen}
+                options={{
+                    tabBarLabel: "Discover",
+                    tabBarIcon: ({ color, size }) => {
+                        return <Icon name='earth' size={size} color={color} />;
+                    },
+                }}
+            />
+            <Tab.Screen
+                name='History'
+                component={HistScreen}
+                options={{
+                    tabBarLabel: "History",
+                    tabBarIcon: ({ color, size }) => {
+                        return (
+                            <Icon name='history' size={size} color={color} />
+                        );
+                    },
+                }}
+            />
+            <Tab.Screen
+                name='Saved'
+                component={SaveScreen}
+                options={{
+                    tabBarLabel: "Saved",
+                    tabBarIcon: ({ color, size }) => {
+                        return (
+                            <Icon name='bookmark' size={size} color={color} />
+                        );
+                    },
+                }}
+            />
+        </Tab.Navigator>
+    );
 }
 
-export default withTheme(HomeView);
+function HomeScreen() {
+    return (
+        <View style={styles.container}>
+            <Text variant='headlineMedium'>Home!</Text>
+        </View>
+    );
+}
+
+function DiscScreen() {
+    return (
+        <View style={styles.container}>
+            <Text variant='headlineMedium'>Discovery!</Text>
+        </View>
+    );
+}
+
+function SaveScreen() {
+    return (
+        <View style={styles.container}>
+            <Text variant='headlineMedium'>Saved!</Text>
+        </View>
+    );
+}
+
+function HistScreen() {
+    return (
+        <View style={styles.container}>
+            <Text variant='headlineMedium'>History!</Text>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+});
