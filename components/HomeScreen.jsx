@@ -20,27 +20,25 @@ const MultipleSelectChip = memo(({ name, list }) => {
   const [selectedChips, setSelectedChips] = useState([]);
   const dispatch = useDispatch();
   console.log("render");
-  
+
   const manga = useSelector((state) => state.manga);
   useEffect(() => {
     let object = {
       ...manga.tag,
       [name]: selectedChips,
     };
-    setTimeout(() => {
-      dispatch(setTags(object));
-    }, 100);
-    
-  }, [selectedChips]); 
-  
+    dispatch(setTags(object));
+    console.log(manga.tag);
+  },[selectedChips]);
   const toggleSelectedChip = useCallback((chip) => {
+    // console.log(chip);
     setSelectedChips((prevState) => {
       if (prevState.includes(chip)) {
         return prevState.filter((item) => item !== chip);
       }
       return [...prevState, chip];
     });
-  }, []);
+  }, [setSelectedChips]);
   return useMemo(() => {
     return list.map((element) => (
       <Chip
@@ -49,7 +47,6 @@ const MultipleSelectChip = memo(({ name, list }) => {
           selectedChips.includes(element) && style.selectedChip,
         ]}
         key={element}
-        showSelectedOverlay={true}
         textStyle={[
           style.chipText,
           selectedChips.includes(element) && style.selectedChipText,
@@ -59,7 +56,7 @@ const MultipleSelectChip = memo(({ name, list }) => {
         {element}
       </Chip>
     ));
-  },[[list, selectedChips, toggleSelectedChip]]);
+  }, [list, selectedChips]);
 });
 
 function HomeScreen() {
@@ -68,26 +65,27 @@ function HomeScreen() {
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   const [chipVisible, setChipVisible] = useState(false);
-  const {tags} = manga;
+  const tags = manga.tag;
   console.log("render container");
   const onApplyPress = () => {
     // console.log(selectedChips);
-    setChipVisible((prev)=>{return !prev})
+    setChipVisible((prev) => {
+      return !prev;
+    });
   };
 
-  const [searchChips, setSearchChips] = useState([]);
-  useEffect(() => { 
-    setSearchChips([]);
-    tags &&
+  const searchChips = useMemo(() => {
+    const chips = [];
+    if (tags) {
       Object.keys(tags).forEach((element) => {
         tags[element] &&
-          tags[element].map((el) => {
-            setSearchChips((prev) => {
-              return [...prev, el];
-            });
+          tags[element].forEach((el) => {
+            chips.push(el);
           });
       });
-  }, []);
+    }
+    return chips;
+  }, [tags]);
 
   return (
     <ScrollView style={style.container}>
@@ -101,8 +99,7 @@ function HomeScreen() {
         style={style.chipContainer}
         showsHorizontalScrollIndicator={false}
       >
-        {
-          searchChips.length !== 0 &&
+        {searchChips.length !== 0 &&
           searchChips.map((e) => (
             <Chip style={style.chip} key={e}>
               {e}
