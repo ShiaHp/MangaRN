@@ -21,6 +21,7 @@ const RedirectScreen = () => {
             <>
               <Stack.Screen name="Login" component={LoginView} />
               <Stack.Screen name="Register" component={RegisterView} />
+              <Stack.Screen name="Home" component={HomeView} />
             </>
           )}
         </Stack.Navigator>

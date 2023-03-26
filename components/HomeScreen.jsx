@@ -14,26 +14,14 @@ import { useSelector, useDispatch } from "react-redux";
 import tag from "../tag.json";
 import { useState, memo, useEffect, useMemo, useCallback } from "react";
 
-const MultipleSelectChip = memo(({ name, list }) => {
+const MultipleSelectChip = memo((props) => {
+  const {list,name,onClick} = props;
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   const [selectedChips, setSelectedChips] = useState([]);
-  const dispatch = useDispatch();
-  console.log("render");
-  
-  const manga = useSelector((state) => state.manga);
-  useEffect(() => {
-    let object = {
-      ...manga.tag,
-      [name]: selectedChips,
-    };
-    setTimeout(() => {
-      dispatch(setTags(object));
-    }, 100);
-    
-  }, [selectedChips]); 
   
   const toggleSelectedChip = useCallback((chip) => {
+    props.onClick(chip)
     setSelectedChips((prevState) => {
       if (prevState.includes(chip)) {
         return prevState.filter((item) => item !== chip);
@@ -41,7 +29,8 @@ const MultipleSelectChip = memo(({ name, list }) => {
       return [...prevState, chip];
     });
   }, []);
-  return useMemo(() => {
+  
+  const chips = useMemo(() => {
     return list.map((element) => (
       <Chip
         style={[
@@ -59,36 +48,32 @@ const MultipleSelectChip = memo(({ name, list }) => {
         {element}
       </Chip>
     ));
-  },[[list, selectedChips, toggleSelectedChip]]);
+  }, [list, selectedChips, toggleSelectedChip]);
+  
+  return <>{chips}</>;
 });
 
 function HomeScreen() {
   const [searchModalVisible, setSearchModalVisible] = useState(false);
   const manga = useSelector((state) => state.manga);
   const theme = useTheme();
-  const style = HomeScreenStyles(theme);
-  const [chipVisible, setChipVisible] = useState(false);
-  const {tags} = manga;
-  console.log("render container");
-  const onApplyPress = () => {
-    // console.log(selectedChips);
-    setChipVisible((prev)=>{return !prev})
-  };
-
+  const style = HomeScreenStyles(theme);  
   const [searchChips, setSearchChips] = useState([]);
-  useEffect(() => { 
-    setSearchChips([]);
-    tags &&
-      Object.keys(tags).forEach((element) => {
-        tags[element] &&
-          tags[element].map((el) => {
-            setSearchChips((prev) => {
-              return [...prev, el];
-            });
-          });
-      });
-  }, []);
 
+  const dispatch = useDispatch();
+  const callback = (name) => {
+    setSearchChips((prevState) => {
+      return [...prevState, name];
+    });
+  };
+  const onApplyPress = () => {
+    let object = {
+      ...manga.tag,
+      searchChips
+    };
+    dispatch(setTags(object));
+    setSearchModalVisible(false);
+  }
   return (
     <ScrollView style={style.container}>
       <Searchbar
@@ -119,23 +104,23 @@ function HomeScreen() {
           <ScrollView style={{ marginBottom: 10 }}>
             <Text style={[style.whiteText, style.h2]}>Sort By</Text>
             <View style={style.chipContainer}>
-              <MultipleSelectChip name="Order" list={tag.sortBy} />
+              <MultipleSelectChip onClick={callback} name="Order" list={tag.sortBy} />
             </View>
             <Text style={[style.whiteText, style.h2]}>Status</Text>
             <View style={style.chipContainer}>
-              <MultipleSelectChip name="Status" list={tag.status} />
+              <MultipleSelectChip onClick={callback} name="Status" list={tag.status} />
             </View>
             <Text style={[style.whiteText, style.h2]}>Gerne</Text>
             <View style={style.chipContainer}>
-              <MultipleSelectChip name="Gerne" list={tag.genres} />
+              <MultipleSelectChip onClick={callback} name="Gerne" list={tag.genres} />
             </View>
             <Text style={[style.whiteText, style.h2]}>Theme</Text>
             <View style={style.chipContainer}>
-              <MultipleSelectChip name="Theme" list={tag.themes} />
+              <MultipleSelectChip onClick={callback} name="Theme" list={tag.themes} />
             </View>
             <Text style={[style.whiteText, style.h2]}>Format</Text>
             <View style={style.chipContainer}>
-              <MultipleSelectChip name="Format" list={tag.formats} />
+              <MultipleSelectChip onClick={callback} name="Format" list={tag.formats} />
             </View>
             <View></View>
           </ScrollView>
