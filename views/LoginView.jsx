@@ -2,7 +2,7 @@ import { Pressable, Text, View } from "react-native";
 import { useState } from 'react';
 import { withTheme, TextInput, Button } from "react-native-paper";
 import { useSelector, useDispatch } from 'react-redux';
-import { login,getUser } from '../redux/reducer/user';
+import { login } from '../redux/reducer/user';
 import Style from "./Style"
 
 function LoginView({ navigation }) {
@@ -12,7 +12,6 @@ function LoginView({ navigation }) {
     const style = Style()
     const onLoginPressed = ()=>{
         dispatch(login({email,password}))
-
     }
     return (
         <View style={style.flexContainer}>
@@ -23,9 +22,9 @@ function LoginView({ navigation }) {
                     style={style.input}
                     value={email}
                     onChangeText={setEmail}
-                    mode="flat"
-                    underlineColor="transparent"
-                    activeUnderlineColor="transparent"
+                    mode="outlined"
+                    // underlineColor="transparent"
+                    // activeUnderlineColor="transparent"
                     placeholder="Email"
                     left={<TextInput.Icon icon="account" />}
                 ></TextInput>
@@ -33,9 +32,9 @@ function LoginView({ navigation }) {
                     style={style.input}
                     value={password}
                     onChangeText={setPassword}
-                    mode="flat"
-                    underlineColor="transparent"
-                    activeUnderlineColor="transparent"
+                    mode="outlined"
+                    // underlineColor="transparent"
+                    // activeUnderlineColor="transparent"
                     placeholder="Password"
                     left={<TextInput.Icon icon="lock" />}
                 ></TextInput>

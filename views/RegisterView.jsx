@@ -11,25 +11,19 @@ function RegisterView({ navigation }) {
                 <Text style={style.headerText}>Register</Text>
                 <TextInput
                     style={style.input}
-                    mode='flat'
-                    underlineColor='transparent'
-                    activeUnderlineColor='transparent'
+                    mode='outlined'
                     placeholder='Your username'
                     left={<TextInput.Icon icon='account' />}
                 ></TextInput>
                 <TextInput
                     style={style.input}
-                    mode='flat'
-                    underlineColor='transparent'
-                    activeUnderlineColor='transparent'
+                    mode='outlined'
                     placeholder='Your password'
                     left={<TextInput.Icon icon='lock' />}
                 ></TextInput>
                 <TextInput
                     style={style.input}
-                    mode='flat'
-                    underlineColor='transparent'
-                    activeUnderlineColor='transparent'
+                    mode='outlined'
                     placeholder='Retype your password'
                     left={<TextInput.Icon icon='lock' />}
                 ></TextInput>

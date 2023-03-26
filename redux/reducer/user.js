@@ -3,7 +3,7 @@ import axios from "axios";
 
 import { storeData, getData } from "../../features/asyncStorage";
 
-const url = 'http://192.168.1.10:3033/'
+const url = 'http://192.168.1.8:3033/'
 
 const initialState = {
     value : null

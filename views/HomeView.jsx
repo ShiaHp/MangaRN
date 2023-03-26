@@ -1,42 +1,40 @@
-import { useState } from "react";
 import {
   withTheme,
   Button,
   Searchbar,
   Modal,
   Portal,
+  BottomNavigation,
 } from "react-native-paper";
+import { StyleSheet } from "react-native";
+
+import { useState } from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+
 import { View, Text } from "react-native";
 import Style from "./Style";
 import { BottomBar, TopBar } from "../components/";
+
 function HomeView() {
   const style = Style();
-  const [visible, setVisible] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("");
-  const onChangeSearch = (query) => setSearchQuery(query);
   return (
-    <View style={style.container}>
-      <TopBar />
-      <Searchbar
-        placeholder="Search..."
-        onChangeText={onChangeSearch}
-        value={searchQuery}
-        traileringIcon="filter-variant"
-        onTraileringIconPress={() => setVisible(true)}
-      />
-      <Portal>
-        <Modal
-          visible={visible}
-          onDismiss={()=>setVisible(false)}
-          contentContainerStyle={style.modalContent}
-          style={style.modalWrapper}
-        >
-          <Text>alskdjalsdkj</Text>
-        </Modal>
-      </Portal>
-      {/* <BottomBar/> */}
-    </View>
+    <>
+      <View style={style.container}>
+        <View>
+          <TopBar />
+        </View>
+          <BottomBar />
+      </View>
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
 
 export default withTheme(HomeView);

@@ -5,14 +5,14 @@ const loginStyle = () => {
   return {
     flexContainer: {
       flex: 1,
-      backgroundColor: theme.colors.darkContainer,
+      backgroundColor: theme.colors.background,
       justifyContent: "center",
       alignItems: "center",
     },
     container: {
       flex: 1,
-      backgroundColor: theme.colors.darkContainer,
-      paddingHorizontal: 20,
+      backgroundColor: theme.colors.background,
+    //   paddingHorizontal: 20,
       // justifyContent: "center",
     },
     input: {
@@ -57,4 +57,4 @@ const loginStyle = () => {
   };
 };
 
-export default loginStyle;
+export default loginStyle ;

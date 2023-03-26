@@ -39,7 +39,7 @@ function TopBar() {
         <Appbar.Action icon="account" onPress={() => showModal(visible)} />
         <TouchableRipple onPress={() => showModal(visible)}>
           <Avatar.Image
-            size={30}
+            size={40}
             source={{
               uri: "https://gamek.mediacdn.vn/133514250583805952/2021/11/17/co9-16371265918121873152617.jpg",
             }}
