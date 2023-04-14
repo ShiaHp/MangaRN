@@ -29,7 +29,6 @@ export const {changeUser, logOut} = userSlice.actions
 export const getUserFromAsyncStore = ()=>(dispatch)=>{
     getData('user')  
     .then((value)=>{
-        console.log(value);
         dispatch(changeUser(value)) 
     })
 }
