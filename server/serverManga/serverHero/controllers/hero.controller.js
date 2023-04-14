@@ -71,7 +71,7 @@ module.exports = {
   },
   getManga: async (req, res) => {
   try {
-    const { title, includedTagNames, excludedTagNames } = req.query;
+    const { title, includedTagNames, excludedTagNames, limit } = req.query;
 
       // filter by tag
     let includedTagIDs, excludedTagIDs;
@@ -89,7 +89,7 @@ module.exports = {
         }
 
       }
-      // sort data
+  
     const order = {
       // year: 'desc',
       rating: 'desc',
@@ -106,9 +106,10 @@ module.exports = {
       url: `${baseUrl}/manga`,
       params: {
         title: title,
+        limit: limit,
         'includedTags': includedTagIDs,
         'excludedTags': excludedTagIDs,
-        ...finalOrderQuery
+        // ...finalOrderQuery
         }
       })
 
