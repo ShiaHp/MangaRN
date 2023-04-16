@@ -14,13 +14,14 @@ module.exports = {
         url: `${baseUrl}manga/${mangaId}/feed`
       });
       let latestChapter = 0;
+  
       
       for (let item of listChapter.data.data) {
         if (Number(item.attributes.chapter) > Number(latestChapter)) {
           latestChapter = item.attributes.chapter
         }
       }
-  
+
       res.status(200).json({
         message: 'Success',
         data: listChapter.data,
@@ -98,18 +99,8 @@ module.exports = {
         }
 
       }
-  
-    const order = {
-      // year: 'desc',
-      rating: 'desc',
-      createdAt: 'desc',
-      updatedAt: 'desc',
-    };
+ 
 
-    const finalOrderQuery = {};
-    for (const [key, value] of Object.entries(order)) {
-      finalOrderQuery[`order[${key}]`] = value;
-  };
     const response = await axios({
       method: 'GET',
       url: `${baseUrl}/manga`,
@@ -122,6 +113,20 @@ module.exports = {
         // ...finalOrderQuery
         }
       })
+      for(let manga of response.data.data) {
+        const listChapter = await axios({
+          method: 'get',
+          url: `${baseUrl}manga/${manga.id}/feed`
+        });
+        let latestChapter = 0;
+        for (let item of listChapter.data.data) {
+          if (Number(item.attributes.chapter) > Number(latestChapter)) {
+            latestChapter = item.attributes.chapter
+          }
+        }
+        manga.attributes.latestChapter = latestChapter
+      }
+   
 
       res.status(200).json(
         {
