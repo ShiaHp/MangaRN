@@ -12,10 +12,19 @@ module.exports = {
       const listChapter = await axios({
         method: 'get',
         url: `${baseUrl}manga/${mangaId}/feed`
-      })
+      });
+      let latestChapter = 0;
+      
+      for (let item of listChapter.data.data) {
+        if (Number(item.attributes.chapter) > Number(latestChapter)) {
+          latestChapter = item.attributes.chapter
+        }
+      }
+  
       res.status(200).json({
         message: 'Success',
-        data: listChapter.data
+        data: listChapter.data,
+        latestChapter: latestChapter
       })
     } catch (e) {
       res.status(404).json({
