@@ -1,41 +1,22 @@
 // import { Card } from "react-native-paper"
 import { Image, View, Text, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { useDispatch } from "react-redux";
-import { useEffect } from "react";
-import { useState } from "react";
 import { memo } from "react";
-import axios from "axios";
 const CardItem = memo(({ item }) => {
-  const [cover, setCover] = useState("");
-  useEffect(() => {
-    const url = "http://192.168.1.8:3032";
-    const getMangaImage = (id) => {
-      axios({
-        url: `${url}/api/v1/manga/cover/${id}`,
-        method: "GET",
-      })
-        .then((data) => {
-          setCover(data.data.data)
-        })
-        .catch((err) => {
-          console.log("Get cover error", err);
-        });
-    };
-    getMangaImage(item.id);
-  }, []);
+  console.log('render item');
   
   return (
     <View style={styles.card}>
       <Image
         source={{
-          uri: cover?cover:'https://www.asiabooks.com/media/catalog/product/placeholder/default/Image_Empty.png',
+          uri: `https://mangadex.org/covers/${item.id}/${item.cover.attributes.fileName}.256.jpg`,
         }}
         style={styles.image}
       />
       <LinearGradient
         // Background Linear Gradient
         colors={["transparent", "rgba(0,0,0,0.9)"]}
+        locations={[0,0.8]}
         style={{
           width: "100%",
           height: "50%",
@@ -44,7 +25,7 @@ const CardItem = memo(({ item }) => {
         }}
       />
       <View style={{ position: "absolute", bottom: 0, margin: 10 }}>
-        <Text style={[styles.primaryText, , styles.textWrap]}>
+        <Text style={[styles.primaryText, , styles.textWrap]} numberOfLines={3}>
           {item.attributes.title["en"]}
         </Text>
         <Text style={[styles.secondaryText, styles.textWrap]}>

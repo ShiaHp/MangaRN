@@ -71,7 +71,7 @@ module.exports = {
   },
   getManga: async (req, res) => {
   try {
-    const { title, includedTagNames, excludedTagNames,limit,offset } = req.query;
+    const { title, includedTagNames, excludedTagNames,limit,offset,includes} = req.query;
 
       // filter by tag
     let includedTagIDs, excludedTagIDs;
@@ -108,6 +108,7 @@ module.exports = {
         title: title,
         limit,
         offset,
+        includes,
         'includedTags': includedTagIDs,
         'excludedTags': excludedTagIDs,
         // ...finalOrderQuery

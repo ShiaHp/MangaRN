@@ -9,7 +9,6 @@ import {
   FlatList,
 } from "react-native";
 import Styles from "./HomeScreenStyle";
-import { LinearGradient } from "expo-linear-gradient";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   useTheme,
@@ -21,6 +20,7 @@ import {
   Button,
 } from "react-native-paper";
 import Carousel from "react-native-reanimated-carousel";
+import {ActivityIndicator} from 'react-native-paper'
 import { setTags, getLatestMangas } from "../redux/reducer/manga";
 import { useSelector, useDispatch } from "react-redux";
 import tag from "../tag.json";
@@ -74,7 +74,8 @@ const MultipleSelectChip = memo(
   }
 );
 
-const SearchSection = () => {
+const SearchSection = memo(() => {
+  console.log("render searchh");
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   const [searchModalVisible, setSearchModalVisible] = useState(false);
@@ -210,9 +211,10 @@ const SearchSection = () => {
       </View>
     </>
   );
-};
+});
 
 const PopularSection = memo(() => {
+  console.log("render popular");
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   const width = Dimensions.get("window").width;
@@ -299,7 +301,7 @@ const LatestSection = memo(() => {
   const style = HomeScreenStyles(theme);
 
   const manga = useSelector((state) => state.manga.manga);
-  const keyExtractor = useCallback((item)=>item.id,[])
+  const keyExtractor = useCallback((item) => item.id, []);
   return (
     <>
       <Text style={[style.h1, style.whiteText, { marginVertical: 10 }]}>
@@ -312,8 +314,10 @@ const LatestSection = memo(() => {
           keyExtractor={keyExtractor}
           numColumns={2}
           renderItem={({ item }) => <CardItem item={item} />}
+          initialNumToRender={10}
           nestedScrollEnabled={true}
         />
+        <ActivityIndicator animating={true}/>
       </SafeAreaView>
     </>
   );
@@ -325,9 +329,11 @@ function HomeScreen() {
   console.log("render parent");
   const dispatch = useDispatch();
   const [page, increasePage] = useState(0);
+
   useEffect(() => {
     dispatch(getLatestMangas(page));
   }, [page]);
+
   const isCloseToBottom = ({
     layoutMeasurement,
     contentOffset,

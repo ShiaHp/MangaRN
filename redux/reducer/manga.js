@@ -27,12 +27,19 @@ export const getLatestMangas = (offset)=>(dispatch)=>{
         url : `${url}/api/v1/manga`,
         method : 'GET',
         params : {
-            limit : 10,
-            offset : offset*10
+            limit : 20,
+            offset : offset*20,
+            includes : ["cover_art"]
         }
     })
     .then((payload)=>{
-        dispatch(setManga(payload.data.data.data))
+        const mangaList = payload.data.data.data
+        var cover = null
+        mangaList.forEach((element,index) => {
+            cover = element.relationships.filter(item => item.type === "cover_art")[0]
+            mangaList[index].cover = cover
+        });
+        dispatch(setManga(mangaList))
     })
     .catch((err)=>{
         console.log('Get manga error',err);
