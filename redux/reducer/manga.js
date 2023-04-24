@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 
-const url = 'http://192.168.1.4:3032'
+const url = 'http://192.168.1.133:3032'
 // const url = 'http://localhost:3032'
 
 const initialState = {

@@ -168,19 +168,6 @@ module.exports = {
           includes : ['cover_art','author']
         }
       })
-      for(let manga of response.data.data) {
-        const listChapter = await axios({
-          method: 'get',
-          url: `${baseUrl}manga/${manga.id}/feed`
-        });
-        let latestChapter = 0;
-        for (let item of listChapter.data.data) {
-          if (Number(item.attributes.chapter) > Number(latestChapter)) {
-            latestChapter = item.attributes.chapter
-          }
-        }
-        manga.attributes.latestChapter = latestChapter
-      }
    
 
       res.status(200).json(
