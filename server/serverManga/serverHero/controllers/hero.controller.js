@@ -22,7 +22,6 @@ module.exports = {
         }
       });
       let latestChapter = 0;
-
       for (let item of listChapter.data.data) {
         if (Number(item.attributes.chapter) > Number(latestChapter)) {
           latestChapter = item.attributes.chapter
@@ -135,21 +134,6 @@ module.exports = {
           // ...finalOrderQuery
         }
       })
-      // data.data.data.forEach(async (item,index) => {
-      //   let d = await axios({
-      //     method: "GET",
-      //     url: `${baseUrl}/manga/${item.id}/aggregate`
-      //   })
-        
-      //   const lastVolume = Object.keys(d.data.volumes)[Object.keys(d.data.volumes).length-1];
-      //   // console.log("volume:",lastVolume);
-      //   let lastChapter = 0
-      //   Object.keys(d.data.volumes[lastVolume].chapters).forEach((i)=>{
-      //     if(lastChapter < i) lastChapter = i;
-      //   })
-      //   data.data.data[index].latestChapter = lastChapter;
-      // })
-      // console.log(data.data.data[0].latestChapter);
       res.status(200).json(
         {
           message: 'Success',
@@ -184,6 +168,20 @@ module.exports = {
           includes : ['cover_art','author']
         }
       })
+      for(let manga of response.data.data) {
+        const listChapter = await axios({
+          method: 'get',
+          url: `${baseUrl}manga/${manga.id}/feed`
+        });
+        let latestChapter = 0;
+        for (let item of listChapter.data.data) {
+          if (Number(item.attributes.chapter) > Number(latestChapter)) {
+            latestChapter = item.attributes.chapter
+          }
+        }
+        manga.attributes.latestChapter = latestChapter
+      }
+   
 
       res.status(200).json(
         {
