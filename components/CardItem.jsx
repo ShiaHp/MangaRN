@@ -1,40 +1,51 @@
 // import { Card } from "react-native-paper"
-import { Image, View, Text, StyleSheet } from "react-native";
+import { Image, View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { memo } from "react";
+import { useNavigation } from "@react-navigation/native";
 const CardItem = memo(({ item }) => {
-  console.log('render item');
-  
+  console.log("render item");
+  const navigation = useNavigation()
+const onItemPress = ()=>{
+  navigation.navigate("Detail",{
+    id : item.id,
+  })
+}
   return (
-    <View style={styles.card}>
-      <Image
-        source={{
-          uri: `https://mangadex.org/covers/${item.id}/${item.cover.attributes.fileName}.256.jpg`,
-        }}
-        style={styles.image}
-      />
-      <LinearGradient
-        // Background Linear Gradient
-        colors={["transparent", "rgba(0,0,0,0.9)"]}
-        locations={[0,0.8]}
-        style={{
-          width: "100%",
-          height: "50%",
-          position: "absolute",
-          bottom: 0,
-        }}
-      />
-      <View style={{ position: "absolute", bottom: 0, margin: 10 }}>
-        <Text style={[styles.primaryText, , styles.textWrap]} numberOfLines={3}>
-          {item.attributes.title["en"]}
-        </Text>
-        <Text style={[styles.secondaryText, styles.textWrap]}>
-          Chapter {item.attributes.lastChapter}
-        </Text>
-      </View>
-    </View>
+    <TouchableOpacity onPress={onItemPress} style={styles.card}>
+    {/* <View style={styles.card}> */}
+        <Image
+          source={{
+            uri: `https://mangadex.org/covers/${item.id}/${item.cover.attributes.fileName}.256.jpg`,
+          }}
+          style={styles.image}
+        />
+        <LinearGradient
+          // Background Linear Gradient
+          colors={["transparent", "rgba(0,0,0,0.9)"]}
+          locations={[0, 0.8]}
+          style={{
+            width: "100%",
+            height: "50%",
+            position: "absolute",
+            bottom: 0,
+          }}
+        />
+        <View style={{ position: "absolute", bottom: 0, margin: 10 }}>
+          <Text
+            style={[styles.primaryText, , styles.textWrap]}
+            numberOfLines={3}
+          >
+            {item.attributes.title["en"]}
+          </Text>
+          <Text style={[styles.secondaryText, styles.textWrap]}>
+            Chapter {item.attributes.lastChapter}
+          </Text>
+        </View>
+      {/* </View> */}
+        </TouchableOpacity>
   );
-})
+});
 const styles = StyleSheet.create({
   textWrap: {
     color: "white",

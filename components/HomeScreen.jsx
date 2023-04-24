@@ -296,12 +296,12 @@ const PopularSection = memo(() => {
   );
 });
 
-const LatestSection = memo(() => {
+const LatestSection = memo(({navigation}) => {
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
-
   const manga = useSelector((state) => state.manga.manga);
   const keyExtractor = useCallback((item) => item.id, []);
+
   return (
     <>
       <Text style={[style.h1, style.whiteText, { marginVertical: 10 }]}>
@@ -316,6 +316,7 @@ const LatestSection = memo(() => {
           renderItem={({ item }) => <CardItem item={item} />}
           initialNumToRender={10}
           nestedScrollEnabled={true}
+          // navigation={navigation}
         />
         <ActivityIndicator animating={true}/>
       </SafeAreaView>
@@ -323,7 +324,7 @@ const LatestSection = memo(() => {
   );
 });
 
-function HomeScreen() {
+function HomeScreen({navigation}) {
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   console.log("render parent");
@@ -359,7 +360,7 @@ function HomeScreen() {
       >
         <SearchSection />
         <PopularSection />
-        <LatestSection />
+        <LatestSection navigation={navigation}/>
       </ScrollView>
     </>
   );
