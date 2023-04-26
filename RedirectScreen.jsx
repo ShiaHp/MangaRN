@@ -1,7 +1,13 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
-import { HomeView, DiscoveryView, LoginView, RegisterView, DetailView } from "./views";
+import {
+    HomeView,
+    DiscoveryView,
+    LoginView,
+    RegisterView,
+    DetailView,
+} from "./views";
 import { getUserFromAsyncStore } from "./redux/reducer/user";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 const Stack = createNativeStackNavigator();
@@ -12,29 +18,25 @@ const RedirectScreen = () => {
         dispatch(getUserFromAsyncStore());
     }, []);
     return (
-        <NavigationContainer>
-            <Stack.Navigator screenOptions={{ headerShown: false }}>
-                {/* {user ? ( */}
+        <>
+            <NavigationContainer>
+                <Stack.Navigator screenOptions={{ headerShown: false }}>
+                    {/* {user ? ( */}
                     <>
                         <Stack.Screen name="Home" component={HomeView} />
-                        <Stack.Screen
-                            name="Discovery"
-                            component={DiscoveryView}
-                        />
                         <Stack.Screen name="Detail" component={DetailView} />
-                    </>
-                {/* ) : (
-                    <>
-                        <Stack.Screen name="Login" component={LoginView} />
-                        <Stack.Screen
-                            name="Register"
-                            component={RegisterView}
+                        <Stack.Screen name="Discovery" component={DiscoveryView}
                         />
-                        <Stack.Screen name="Home" component={HomeView} />
                     </>
-                )} */}
-            </Stack.Navigator>
-        </NavigationContainer>
+                    {/* ) : (
+            <>
+              <Stack.Screen name="Login" component={LoginView} />
+              <Stack.Screen name="Register" component={RegisterView} />
+            </>
+          )} */}
+                </Stack.Navigator>
+            </NavigationContainer>
+        </>
     );
 };
 

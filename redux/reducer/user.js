@@ -3,7 +3,7 @@ import axios from "axios";
 
 import { storeData, getData } from "../../features/asyncStorage";
 
-const url = 'http://192.168.1.8:3033/'
+const url = 'http://localhost:3033/'
 
 const initialState = {
     value : null
@@ -29,7 +29,6 @@ export const {changeUser, logOut} = userSlice.actions
 export const getUserFromAsyncStore = ()=>(dispatch)=>{
     getData('user')  
     .then((value)=>{
-        console.log(value);
         dispatch(changeUser(value)) 
     })
 }
