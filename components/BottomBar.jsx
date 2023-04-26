@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, BottomNavigation } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import HomeScreen from './HomeScreen';
+import DiscoveryScreen from './DiscoveryScreen';
 const Tab = createBottomTabNavigator();
 
 export default function BottomBar() {
@@ -59,22 +60,42 @@ export default function BottomBar() {
         name="Homes"
         component={HomeScreen}
         options={{
-          tabBarLabel: 'Homes',
+          tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => {
             return <Icon name="home" size={size} color={color} />;
           },
         }}
       />
       <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
+        name="Discovery"
+        component={DiscoveryScreen}
         options={{
-          tabBarLabel: 'Settings',
+          tabBarLabel: 'Discovery',
           tabBarIcon: ({ color, size }) => {
-            return <Icon name="cog" size={size} color={color} />;
+            return <Icon name="earth" size={size} color={color} />;
           },
         }}
       />
+      {/* <Tab.Screen
+        name="Saved"
+        component={SavedScreen}
+        options={{
+          tabBarLabel: 'Saved',
+          tabBarIcon: ({ color, size }) => {
+            return <Icon name="bookmark" size={size} color={color} />;
+          },
+        }}
+      />
+      <Tab.Screen
+        name="History"
+        component={HistoryScreen}
+        options={{
+          tabBarLabel: 'History',
+          tabBarIcon: ({ color, size }) => {
+            return <Icon name="history" size={size} color={color} />;
+          },
+        }}
+      /> */}
     </Tab.Navigator>
   );
 }

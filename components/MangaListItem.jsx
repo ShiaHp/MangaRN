@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import { List } from "react-native-paper";
 
 const MangaListItem = () => {
@@ -8,15 +9,22 @@ const MangaListItem = () => {
         left={(props) => (
             <Image
                 {...props}
-                style={{ 
+                style={{
                     
-                 }}
+                }}
                 source={{
-                    uri: "https://mangadex.org/covers/fb569d12-1e00-47e3-86cd-793b4eae715c/354dd4df-3331-4b7c-9e16-3aa87f54942f.jpg",
+                    uri: "https://callstack.github.io/react-native-paper/screenshots/list-item-2.png",
                 }}
             />
         )}
     />;
 };
+
+const style = StyleSheet.create({
+    leftComponent: {
+        flex: 1,
+        aspectRatio: 9/16,
+    }
+})
 
 export default MangaListItem;
