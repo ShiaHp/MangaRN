@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
-import { HomeView, DiscoveryView, LoginView, RegisterView } from "./views";
+import { HomeView, DiscoveryView, LoginView, RegisterView, DetailView } from "./views";
 import { getUserFromAsyncStore } from "./redux/reducer/user";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 const Stack = createNativeStackNavigator();
@@ -14,15 +14,16 @@ const RedirectScreen = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false }}>
-                {user ? (
+                {/* {user ? ( */}
                     <>
                         <Stack.Screen name="Home" component={HomeView} />
                         <Stack.Screen
                             name="Discovery"
                             component={DiscoveryView}
                         />
+                        <Stack.Screen name="Detail" component={DetailView} />
                     </>
-                ) : (
+                {/* ) : (
                     <>
                         <Stack.Screen name="Login" component={LoginView} />
                         <Stack.Screen
@@ -31,7 +32,7 @@ const RedirectScreen = () => {
                         />
                         <Stack.Screen name="Home" component={HomeView} />
                     </>
-                )}
+                )} */}
             </Stack.Navigator>
         </NavigationContainer>
     );
