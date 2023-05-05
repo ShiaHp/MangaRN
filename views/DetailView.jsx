@@ -5,6 +5,7 @@ import {
   ScrollView,
   Animated,
   Image,
+  TouchableOpacity
 } from "react-native";
 import Markdown from "react-native-markdown-display";
 import { LinearGradient } from "expo-linear-gradient";
@@ -21,6 +22,7 @@ import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDetailManga, listChapter } from "../redux/reducer/manga";
 import Icon from "react-native-paper/src/components/Icon";
+import { useNavigation } from "@react-navigation/native";
 const chapters = [
   {
     title: "A story of long title",
@@ -65,7 +67,6 @@ const PageRenderer = ({ times }) => {
   const {id} = useSelector((state)=>state.manga.detailManga)
   const dispatch = useDispatch()
   useEffect(()=>{
-    console.log('a');
     dispatch(listChapter(id,active))
   },[active])
   const theme = useTheme();
@@ -82,6 +83,7 @@ const PageRenderer = ({ times }) => {
         break;
     }
   };
+
   return (
     <>
       <IconButton
@@ -127,9 +129,11 @@ const PageRenderer = ({ times }) => {
 const ChapterList = () => {
   const theme = useTheme();
   const style = DetailViewStyle(theme);
-  const dispatch = useDispatch();
   const listChapter = useSelector((state) => state.manga.listChapter);
-
+  const navigation = useNavigation()
+  const onChapterPress = (chapterId, title, volume, chapter)=>{
+    navigation.navigate('Reader',{chapterId, title, volume, chapter})
+  }
   return listChapter ? (
     <View>
       <View
@@ -148,9 +152,8 @@ const ChapterList = () => {
       <Divider bold />
       {listChapter.data.map((item) => {
         return (
-          <View key={item.id}>
+          <TouchableOpacity onPress={()=>onChapterPress(item.id, item.attributes.title, item.attributes.volume, item.attributes.chapter)} key={item.id}>
             <View
-              
               style={{
                 flex: 1,
                 flexDirection: "row",
@@ -171,14 +174,15 @@ const ChapterList = () => {
                   {item.attributes.updatedAt?.slice(0, 10)} - unknown
                 </Text>
               </View>
-              <Icon
-                source={"download-circle-outline"}
+              <IconButton
+                icon={"download-circle-outline"}
                 size={25}
                 color="white"
+                onPress={()=>{console.log('icon');}}
               />
             </View>
             <Divider bold />
-          </View>
+          </TouchableOpacity>
         );
       })}
       <View

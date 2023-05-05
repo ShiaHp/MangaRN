@@ -214,10 +214,12 @@ const SearchSection = memo(() => {
 });
 
 const PopularSection = memo(() => {
+  const carousel = useRef()
   console.log("render popular");
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   const width = Dimensions.get("window").width;
+
   return (
     <>
       <Text style={[style.h1, style.whiteText, { marginVertical: 10 }]}>
@@ -226,13 +228,15 @@ const PopularSection = memo(() => {
       <GestureHandlerRootView>
         <View style={{ flex: 1 }}>
           <Carousel
+
             loop
-            autoPlay
+            // autoPlay
             autoPlayInterval={2000}
-            width={width - 40}
+            width={width - 20}
             height={width / 2}
             data={example.manga}
             scrollAnimationDuration={1500}
+            ref={carousel}
             renderItem={({ index, item }) => (
               <View
                 style={{
@@ -371,7 +375,7 @@ const HomeScreenStyles = (theme) =>
     container: {
       flex: 1,
       backgroundColor: theme.colors.background,
-      paddingHorizontal: 20,
+      paddingHorizontal: 10,
     },
     modalContainer: {
       backgroundColor: theme.colors.background,
