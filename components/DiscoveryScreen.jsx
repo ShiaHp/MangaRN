@@ -23,7 +23,7 @@ import { useState, memo, useEffect, useMemo, useCallback } from "react";
 
 function DiscoveryScreen() {
     const [searchModalVisible, setSearchModalVisible] = useState(false);
-    const manga = useSelector((state) => state.manga);
+    const manga = useSelector((state) => state.manga.manga);
     const theme = useTheme();
     const style = HomeScreenStyles(theme);
     const [chipVisible, setChipVisible] = useState(false);
@@ -34,6 +34,7 @@ function DiscoveryScreen() {
             return !prev;
         });
     };
+    const keyExtractor = useCallback((item) => item.id, []);
     return (
         <ScrollView style={style.container}>
             <Searchbar
@@ -99,25 +100,29 @@ function DiscoveryScreen() {
             <View style={style.horizontalListContainer}>
                 <ScrollView horizontal={true}>
                     <FlatList
-                        data={horizontalData1}
-                        renderItem={renderItem}
+                        removeClippedSubviews={true}
+                        data={manga ? manga : []}
                         keyExtractor={keyExtractor}
-                        horizontal={true}
+                        renderItem={({ item }) => <CardItem item={item} />}
+                        initialNumToRender={10}
+                        nestedScrollEnabled={true}
                     />
                 </ScrollView>
                 <ScrollView horizontal={true}>
                     <FlatList
-                        data={horizontalData2}
-                        renderItem={renderItem}
+                        removeClippedSubviews={true}
+                        data={manga ? manga : []}
                         keyExtractor={keyExtractor}
-                        horizontal={true}
+                        renderItem={({ item }) => <CardItem item={item} />}
+                        initialNumToRender={10}
+                        nestedScrollEnabled={true}
                     />
                 </ScrollView>
             </View>
             <FlatList
-                data={data}
-                renderItem={renderItem}
-                keyExtractor={keyExtractor}
+                // data={data}
+                // renderItem={renderItem}
+                // keyExtractor={keyExtractor}r
             />
         </ScrollView>
     );

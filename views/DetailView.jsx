@@ -6,7 +6,7 @@ import {
   Animated,
   Image,
 } from "react-native";
-import Markdown from "react-native-markdown-display";
+import Markdown from "@ronradtke/react-native-markdown-display";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme, withTheme } from "react-native-paper";
 import {
