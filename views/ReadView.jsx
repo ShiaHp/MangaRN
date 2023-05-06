@@ -18,7 +18,7 @@ import axios from "axios";
 
 const ReadView = ({ route, navigation }) => {
   const { chapterId, title, volume, chapter } = route.params;
-  const [pages, setPages] = useState(null);
+  const [pages, setPages] = useState([]);
   const [isScrollReadMode, changeIsScrollReadMode] = useState(false);
   const [idx, setidx] = useState(1);
   const theme = useTheme();
@@ -37,8 +37,13 @@ const ReadView = ({ route, navigation }) => {
   // let title = "title";
   // let volume = 3;
   // let chapter = 2;
+  const convertToBlob = async (url) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return blob;
+  };
+
   useEffect(() => {
-    console.log(chapterId);
     setIsLoading(true);
     async function fetchData() {
       return await axios({
@@ -48,7 +53,7 @@ const ReadView = ({ route, navigation }) => {
     }
     fetchData()
       .then((res) => {
-        var promises = [];
+        const promises = [];
         temp.current = 0;
         res.data.constructedUrls.forEach((src, index) => {
           promises.push(
@@ -73,8 +78,21 @@ const ReadView = ({ route, navigation }) => {
             })
           );
         });
+
         Promise.all(promises)
-          .then((result) => {
+          .then(async (result) => {
+            const pages = [];
+            for (let i = 0; i < result.length; i++) {
+              const url = result[i].src;
+              const blob = await convertToBlob(url);
+              const img = document.createElement("img");
+              img.src = URL.createObjectURL(blob);
+              pages.push(img.src);
+            }
+            result.forEach((item, i ) => {
+              item.src = pages[i];
+            })
+            console.log('pages', pages)
             setPages(result);
             setIsLoading(false);
           })
@@ -86,6 +104,7 @@ const ReadView = ({ route, navigation }) => {
         console.error(err);
       });
   }, [chapterId]);
+
 
   const CountPage = () => {
     return (
