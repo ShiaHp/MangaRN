@@ -20,9 +20,10 @@ import {
 } from "react-native-paper";
 import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDetailManga, listChapter } from "../redux/reducer/manga";
+import { getDetailManga, listChapter, storeReadList, setReadListChapter } from "../redux/reducer/manga";
 import Icon from "react-native-paper/src/components/Icon";
 import { useNavigation } from "@react-navigation/native";
+import read from '../example.json'
 const chapters = [
   {
     title: "A story of long title",
@@ -128,10 +129,14 @@ const PageRenderer = ({ times }) => {
 
 const ChapterList = () => {
   const theme = useTheme();
+  const {id} = useSelector((state)=>state.manga.detailManga)
   const style = DetailViewStyle(theme);
+  const dispatch = useDispatch();
   const listChapter = useSelector((state) => state.manga.listChapter);
   const navigation = useNavigation()
   const onChapterPress = (chapterId, title, volume, chapter)=>{
+    dispatch(storeReadList(id,chapterId,chapter))
+    dispatch(setReadListChapter(chapterId))
     navigation.navigate('Reader',{chapterId, title, volume, chapter})
   }
   return listChapter ? (
@@ -154,13 +159,13 @@ const ChapterList = () => {
         return (
           <TouchableOpacity onPress={()=>onChapterPress(item.id, item.attributes.title, item.attributes.volume, item.attributes.chapter)} key={item.id}>
             <View
-              style={{
+              style={[{
                 flex: 1,
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
                 marginVertical: 10,
-              }}
+              }, item.hasRead ? {opacity:0.5}:{}]}
             >
               <View>
                 <Text
@@ -204,12 +209,12 @@ const ChapterList = () => {
 
 function DetailView({ navigation, route }) {
   const {id} = route.params
+  // const id = "34f45c13-2b78-4900-8af2-d0bb551101f4"
   const dispatch = useDispatch();
   const detailManga = useSelector((state) => state.manga.detailManga);
-  // const id = "34f45c13-2b78-4900-8af2-d0bb551101f4"
   useEffect(() => {
     dispatch(getDetailManga(id));
-  }, []);
+  }, [id]);
   const theme = useTheme();
   const style = DetailViewStyle(theme);
 

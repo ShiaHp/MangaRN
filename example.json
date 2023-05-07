@@ -1,25 +1,9 @@
 {
-    "manga" :   [{
-        "id": "1",
-        "title": "Komi can't communicate",
-        "author": "Tadano Hitohito",
-        "latestChapter": 123,
-        "image":
-          "https://product.hstatic.net/200000343865/product/12_f289eb898483406ca5bc77363e7f935d_master.jpg"
-      },
-      {
-        "id": "2",
-        "title": "Câmi 2",
-        "author": "Tadano Hitohito",
-        "latestChapter": 123,
-        "image":
-          "https://vietotaku.com/wp-content/uploads/2022/06/Review-Komi-season-12_13.6.2022_2.jpg?v=1655136588"
-      },
-      {
-        "id": "3",
-        "title": "Komi 3",
-        "author": "Tadano Hitohito",
-        "latestChapter": 123,
-        "image": "https://cdn-amz.woka.io/images/I/81ru6R4iKHL.jpg"
-      }]
+  "ddcebfa2-05a0-4fcd-9cd4-60d779c38f2c": {
+    "list" :  ["80f59224-1ed0-498f-9469-39238366023e","62ab4299-2dc3-42d5-9c5f-e7f2a777cf68"],
+    "lChapter" : {
+      "id" : "1d51e2c1-bad9-46f7-ad33-52a2cdedb252",
+      "chapter" : 1
+    }
+  }
 }

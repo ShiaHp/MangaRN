@@ -1,15 +1,16 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, current } from "@reduxjs/toolkit";
 import axios from "axios";
-
-
-export const url = 'http://192.168.1.12:3032'
+import json from '../../example.json'
+import { storeData } from "../../features/asyncStorage";
+import { getData } from "../../features/asyncStorage";
+export const url = 'http://192.168.1.4:3032'
 // const url = 'http://localhost:3032'
 
 const initialState = {
     tag: null,
     manga: [],
     offset: 0,
-    manga: [],
+    readList: {},
     listManga: null,
     detailManga: null,
     detailMangaCover: null,
@@ -28,11 +29,62 @@ export const mangaSlice = createSlice({
         setManga: (state, action) => {
             state.manga = state.manga.concat(action.payload)
         },
-        setListChapter: (state, action)=>{
-            state.listChapter = action.payload
+        setListChapter: (state, action) => {
+            let { id, result } = action.payload
+            result.data = result.data.map(item => {
+                // console.log(state.readList[id]);
+                if (state.readList[id] && state.readList[id].list.includes(item.id))
+                    return { ...item, hasRead: true }
+                else
+                    return { ...item, hasRead: false }
+            })
+            // console.log(result.data);
+            state.listChapter = result
+        },
+        setReadListChapter: (state,action) =>{
+            let chapterId = action.payload
+            let r = state.listChapter.data.map((item)=>{
+                let i = {...item}
+                if(item.id === chapterId) {
+                    i.hasRead=true
+                    return i
+                }
+                return item
+            })
+            state.listChapter.data = r
+        },
+        setReadList: (state, action) => {
+            state.readList = action.payload
         }
     }
 })
+
+export const storeReadList = (mangaId, chapterId, chapter) => (dispatch, getState) => {
+    const state = getState();
+    let readList = { ...state.manga.readList }; // Create a shallow copy of the readList object
+
+    if (readList[mangaId]) {
+        readList[mangaId] = {
+            ...readList[mangaId],
+            list: [...readList[mangaId].list, chapterId]
+        };
+    } else {
+        readList[mangaId] = {
+            list: [chapterId]
+        };
+    }
+
+    dispatch(setReadList(readList));
+    console.log(state.manga.readList);
+    storeData('readList', readList);
+};
+
+export const getReadListFromStore = () => (dispatch) => {
+    getData('readList')
+        .then((value) => {
+            dispatch(setReadList(value))
+        })
+}
 
 export const getLatestMangas = (offset) => (dispatch) => {
     axios({
@@ -59,7 +111,7 @@ export const getLatestMangas = (offset) => (dispatch) => {
 }
 
 
-export const { setTags, setManga, setDetailManga, setListChapter } = mangaSlice.actions
+export const { setTags, setManga, setDetailManga, setListChapter, setReadList, setReadListChapter } = mangaSlice.actions
 
 // export const randomManga = (payload) => (dispatch) => {
 //     axios({
@@ -71,7 +123,7 @@ export const { setTags, setManga, setDetailManga, setListChapter } = mangaSlice.
 //     })
 // }
 
-export const listChapter = (id,page) => (dispatch) => {
+export const listChapter = (id, page) => (dispatch) => {
     axios({
         method: 'GET',
         url: `${url}/api/v1/manga/chapter/list/${id}`,
@@ -80,11 +132,12 @@ export const listChapter = (id,page) => (dispatch) => {
                 chapter: 'desc',
                 volume: 'desc',
             },
-            offset : (page-1)*100,
+            offset: (page - 1) * 100,
         }
     })
         .then((res) => {
-            dispatch(setListChapter(res.data.data))
+            let result = res.data.data
+            dispatch(setListChapter({ id, result }))
         })
         .catch((err) => {
             console.log(err);
@@ -92,7 +145,7 @@ export const listChapter = (id,page) => (dispatch) => {
 }
 
 export const getDetailManga = (payload) => (dispatch) => {
-    dispatch(listChapter(payload,1))
+    dispatch(listChapter(payload, 1))
     axios({
         method: "GET",
         url: `${url}/api/v1/manga/${payload}`,
