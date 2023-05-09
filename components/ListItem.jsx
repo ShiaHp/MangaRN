@@ -9,22 +9,20 @@ const MangaListItem = () => {
         left={(props) => (
             <Image
                 {...props}
-                style={{
-                    
-                }}
                 source={{
-                    uri: "https://callstack.github.io/react-native-paper/screenshots/list-item-2.png",
+                    uri: `https://mangadex.org/covers/${item.id}/${item.cover.attributes.fileName}.256.jpg`,
                 }}
+                style={styles.image}
             />
         )}
     />;
 };
 
-const style = StyleSheet.create({
-    leftComponent: {
+const styles = StyleSheet.create({
+    image: {
         flex: 1,
         aspectRatio: 9/16,
     }
 })
 
-export default MangaListItem;
+export default ListItem;

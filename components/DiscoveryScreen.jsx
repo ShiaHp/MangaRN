@@ -104,7 +104,7 @@ function DiscoveryScreen() {
                         data={manga ? manga : []}
                         keyExtractor={keyExtractor}
                         renderItem={({ item }) => <CardItem item={item} />}
-                        initialNumToRender={10}
+                        initialNumToRender={5}
                         nestedScrollEnabled={true}
                     />
                 </ScrollView>
@@ -114,7 +114,7 @@ function DiscoveryScreen() {
                         data={manga ? manga : []}
                         keyExtractor={keyExtractor}
                         renderItem={({ item }) => <CardItem item={item} />}
-                        initialNumToRender={10}
+                        initialNumToRender={5}
                         nestedScrollEnabled={true}
                     />
                 </ScrollView>

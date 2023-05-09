@@ -13,7 +13,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 
 import { View, Text } from "react-native";
 import Style from "./Style";
-import { BottomBar, TopBar, MangaListItem } from "../components/";
+import { BottomBar, TopBar, ListItem } from "../components/";
 
 function DiscoveryView() {
     const style = Style();
@@ -23,7 +23,6 @@ function DiscoveryView() {
                 <View>
                     <TopBar />
                 </View>
-                <MangaListItem />
                 <BottomBar />
             </View>
         </>
