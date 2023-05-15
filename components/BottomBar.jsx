@@ -15,8 +15,8 @@ export default function BottomBar() {
       }}
       tabBar={({ navigation, state, descriptors, insets }) => (
         <BottomNavigation.Bar
-          navigationState={state}
-         safeAreaInsets={insets}
+          navigationState = {state}
+         safeAreaInsets = {insets}
           onTabPress={({ route, preventDefault }) => {
             const event = navigation.emit({
               type: 'tabPress',

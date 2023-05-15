@@ -23,51 +23,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { getDetailManga, listChapter } from "../redux/reducer/manga";
 import Icon from "react-native-paper/src/components/Icon";
 import { useNavigation } from "@react-navigation/native";
-const chapters = [
-  {
-    title: "A story of long title",
-    volume: 3,
-    chapter: 10,
-    dateUpload: "12/12/2121",
-    author: "Unknown",
-  },
-  {
-    title: "A story of long title",
-    volume: 3,
-    chapter: 10,
-    dateUpload: "12/12/2121",
-    author: "Unknown",
-  },
-  {
-    title: "A story of long title",
-    volume: 3,
-    chapter: 10,
-    dateUpload: "12/12/2121",
-    author: "Unknown",
-  },
-  {
-    title: "A story of long title",
-    volume: 3,
-    chapter: 10,
-    dateUpload: "12/12/2121",
-    author: "Unknown",
-  },
-  {
-    title: "A story of long title",
-    volume: 3,
-    chapter: 10,
-    dateUpload: "12/12/2121",
-    author: "Unknown",
-  },
-];
 
 const PageRenderer = ({ times }) => {
   const arr = Array(times).fill(null);
   const [active, setActive] = useState(1);
   const {id} = useSelector((state)=>state.manga.detailManga)
   const dispatch = useDispatch()
-  useEffect(()=>{
-    dispatch(listChapter(id,active))
+  useEffect(() => {
+    dispatch(listChapter(id, active))
   },[active])
   const theme = useTheme();
   const setPage = (method, page) => {
@@ -132,7 +95,7 @@ const ChapterList = () => {
   const listChapter = useSelector((state) => state.manga.listChapter);
   const navigation = useNavigation()
   const onChapterPress = (chapterId, title, volume, chapter)=>{
-    navigation.navigate('Reader',{chapterId, title, volume, chapter})
+    navigation.navigate('Reader', { chapterId, title, volume, chapter })
   }
   return listChapter ? (
     <View>

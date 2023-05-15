@@ -15,18 +15,18 @@ const RedirectScreen = () => {
     <>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {/* {user ? ( */}
+          {user ? (
             <>
               <Stack.Screen name="Home" component={HomeView} />
               <Stack.Screen name="Detail" component={DetailView} />
               <Stack.Screen name="Reader" component={ReadView} />
             </>
-          {/* ) : (
+          ) : (
             <>
               <Stack.Screen name="Login" component={LoginView} />
               <Stack.Screen name="Register" component={RegisterView} />
             </>
-          )} */}
+          )}
         </Stack.Navigator>
       </NavigationContainer>
     </>
