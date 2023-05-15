@@ -9,7 +9,7 @@ const register = async (username, password) => {
         password: password,
     });
 };
-
+// FIX TODO: STORE INFORMATION USER TO REDUX
 
 function RegisterView({ navigation }) {
     const [username, setUsername] = useState('');
