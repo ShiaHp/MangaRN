@@ -24,16 +24,4 @@ router.route('/chapter/image/:chapterId').get(listImageChapter)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 module.exports = router;

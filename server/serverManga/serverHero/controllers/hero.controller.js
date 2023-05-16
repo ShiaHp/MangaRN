@@ -64,6 +64,10 @@ module.exports = {
       const listChapter = await axios({
         method: 'get',
         url: `${baseUrl}manga/${mangaId}/feed`,
+       params: {
+        translatedLanguage: ['en'],
+       }
+
       });
       let latestChapter = 0;
       let startChapter = 0;
@@ -128,19 +132,52 @@ module.exports = {
   listImageChapter: async (req, res) => {
     try {
       const idChapter = req.params.chapterId
-
+      let mangaId;
       const data = await axios({
         method: 'get',
         url: `${baseUrl}at-home/server/${idChapter}`
+      });
+
+      const preAndCurrentChapter = await axios({
+        method: 'get',
+        url: `${baseUrl}chapter/${idChapter}`
       })
+      for (let item of preAndCurrentChapter.data.data.relationships) {
+        if (item.type === "manga") {
+          mangaId = item.id
+        }
+      }
+      const listChapter = await axios({
+        method: 'get',
+        url: `${baseUrl}manga/${mangaId}/feed`,
+        params: {
+          translatedLanguage: ['en'],
+        }
+      });
+      let nextChapterItem = null;
+      let preChapterItem = null;
+
+      for (let item of listChapter.data.data) {
+        const currentChapter = Number(item.attributes.chapter);
+
+        if (currentChapter === Number(preAndCurrentChapter.data.data.attributes.chapter) - 1) {
+          preChapterItem = item;
+        }
+
+        if (currentChapter === Number(preAndCurrentChapter.data.data.attributes.chapter) + 1) {
+          nextChapterItem = item;
+        }
+      }
 
       const hash = data.data.chapter.hash
       const images = data.data.chapter.data
-
+      console.log(nextChapterItem)
       const constructedUrls = images.map((image) => `${baseUploadUrl}data/${hash}/${image}`)
       res.status(200).json({
-        message: 's',
-        constructedUrls: constructedUrls
+        message: 'Success',
+        constructedUrls: constructedUrls,
+        nextChapterItem: nextChapterItem,
+        preChapterItem: preChapterItem,
       })
     } catch (e) {
       res.status(404).json({ e: e.message })

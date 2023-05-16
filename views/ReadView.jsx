@@ -9,12 +9,20 @@ import {
   Image,
   ScrollView,
   FlatList,
+  TouchableOpacity,
+  ToastAndroid,
+  Alert
 } from "react-native";
 import { url } from "../redux/reducer/manga";
 import { Appbar, ActivityIndicator, Badge, Snackbar } from "react-native-paper";
 import { Dimensions, Platform } from "react-native";
 import ExpoFastImage from "expo-fast-image";
 import axios from "axios";
+import { Ionicons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
+
+
+
 
 const ReadView = ({ route, navigation }) => {
   const { chapterId, title, volume, chapter } = route.params;
@@ -24,6 +32,8 @@ const ReadView = ({ route, navigation }) => {
   const theme = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [isSnackbarVisible, setSnackbarVisible] = useState(false);
+  const [nextChapter, setNextChapter] = useState();
+  const [prevChapter, setPrevChapter] = useState();
   const onToggleSnackBar = () => setSnackbarVisible(!isSnackbarVisible);
   const onDismissSnackBar = () => setSnackbarVisible(false);
   const temp = useRef(0);
@@ -33,6 +43,7 @@ const ReadView = ({ route, navigation }) => {
     width: Dimensions.get("screen").width,
     height: Dimensions.get("screen").height,
   });
+
   // let chapterId = "b5cbe34b-89b3-46a2-86b7-2e92797c5cb9";
   // let title = "title";
   // let volume = 3;
@@ -49,6 +60,10 @@ const ReadView = ({ route, navigation }) => {
       .then((res) => {
         var promises = [];
         temp.current = 0;
+        console.log(res.data)
+        setNextChapter(res.data.nextChapterItem);
+        setPrevChapter(res.data.preChapterItem);
+
         res.data.constructedUrls.forEach((src, index) => {
           promises.push(
             new Promise((resolve, reject) => {
@@ -85,6 +100,27 @@ const ReadView = ({ route, navigation }) => {
         console.error(err);
       });
   }, [chapterId]);
+  const moveChapter = (val) => {
+    if (val > 0) {
+      navigation.navigate("Reader", {
+        chapterId: nextChapter.id,
+        title: nextChapter.attributes.title,
+        volume: nextChapter.attributes.volume,
+        chapter: nextChapter.attributes.chapter,
+      });
+    } else {
+      if (prevChapter === undefined) {
+          Alert.alert("This is the first chapter");
+          return;
+      }
+      navigation.navigate("Reader", {
+        chapterId: prevChapter.id,
+        title: prevChapter.attributes.title,
+        volume: prevChapter.attributes.volume,
+        chapter: prevChapter.attributes.chapter,
+      });
+    }
+  };
 
   const CountPage = () => {
     return (
@@ -166,25 +202,26 @@ const ReadView = ({ route, navigation }) => {
           <Appbar.Action icon="book-open" onPress={onChangeMode} />
         </Appbar.Header>
         {isScrollReadMode ? (
-          <ScrollView onScroll={onScroll} scrollEventThrottle={100}>
-            {/* {console.log(pages)} */}
-            {pages.map((item, index) => {
-              return (
-                <ExpoFastImage
-                  key={index}
-                  cacheKey={item.id}
-                  uri={item.src}
-                  resizeMode="contain"
-                  style={{
-                    width: imageDimensions.width - 10,
-                    height: item.height,
-                    marginBottom: 5,
-                    marginHorizontal: 5,
-                  }}
-                />
-              );
-            })}
+          <View>
+            <ScrollView onScroll={onScroll} scrollEventThrottle={100}>
+            {pages.map((item, index) => (
+              <ExpoFastImage
+                key={index}
+                cacheKey={item.id}
+                uri={item.src}
+                resizeMode="contain"
+                style={{
+                  width: imageDimensions.width - 10,
+                  height: item.height,
+                  marginBottom: 5,
+                  marginHorizontal: 5,
+                }}
+              />
+            ))}
+
           </ScrollView>
+          </View>
+
         ) : (
           <GestureHandlerRootView>
             <View style={{ flex: 1 }}>
@@ -240,8 +277,20 @@ const ReadView = ({ route, navigation }) => {
             </View>
           </GestureHandlerRootView>
         )}
-
-        <CountPage />
+     <View style={styles.container}>
+      <TouchableOpacity style={styles.iconContainerLeft}>
+        <Ionicons name="information-circle" size={24} color="white" />
+      </TouchableOpacity>
+      <View style={styles.iconContainerMiddle}></View>
+      <View style={styles.iconContainerRight}>
+        <TouchableOpacity style={styles.icon}>
+        <AntDesign name="caretleft" size={20} color="black"  onPress={() => moveChapter(0)}/>
+        </TouchableOpacity>
+        <TouchableOpacity>
+        <AntDesign name="caretright" size={20} color="black" onPress={() => moveChapter(1)} />
+        </TouchableOpacity>
+      </View>
+    </View>
       </>
     ) : (
       // webb
@@ -271,7 +320,8 @@ const ReadView = ({ route, navigation }) => {
           <Appbar.Action icon="book-open" onPress={onChangeMode} />
         </Appbar.Header>
         {isScrollReadMode ? (
-          <ScrollView
+          <View>
+            <ScrollView
             style={{ backgroundColor: theme.colors.background }}
             onScroll={onScroll}
             scrollEventThrottle={150}
@@ -290,6 +340,9 @@ const ReadView = ({ route, navigation }) => {
               />
             ))}
           </ScrollView>
+
+          </View>
+
         ) : (
           <GestureHandlerRootView>
             <View style={{ flex: 1 }}>
@@ -376,6 +429,32 @@ const ReadView = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   pagerView: {
     flex: 1,
+  },
+  container: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+  },
+  iconContainerLeft: {
+    marginRight: "auto",
+  },
+  iconContainerMiddle: {
+    flex: 1,
+  },
+  iconContainerRight: {
+    flexDirection: "row",
+    marginLeft: "auto",
+    margin: 5,
+  },
+  icon: {
+    marginHorizontal: 20,
   },
 });
 
