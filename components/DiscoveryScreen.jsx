@@ -1,103 +1,21 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    StyleSheet,
-    FlatList,
-    SafeAreaView,
-} from "react-native";
-import Styles from "./HomeScreenStyle";
-import {
-    useTheme,
-    Searchbar,
-    Portal,
-    Modal,
-    withTheme,
-    Chip,
-    Button,
-} from "react-native-paper";
+import { View, ScrollView, StyleSheet, FlatList } from "react-native";
+import { useTheme, withTheme, Chip } from "react-native-paper";
 import { setTags } from "../redux/reducer/manga";
 import { useSelector, useDispatch } from "react-redux";
-import tag from "../tag.json";
 import { useState, memo, useEffect, useMemo, useCallback } from "react";
+import CardItem from "./CardItem";
+import ListItem from "./ListItem";
 
 function DiscoveryScreen() {
-    const [searchModalVisible, setSearchModalVisible] = useState(false);
     const manga = useSelector((state) => state.manga.manga);
     const theme = useTheme();
     const style = HomeScreenStyles(theme);
-    const [chipVisible, setChipVisible] = useState(false);
-    const tags = manga.tag;
-    const onApplyPress = () => {
-        // console.log(selectedChips);
-        setChipVisible((prev) => {
-            return !prev;
-        });
-    };
+
     const keyExtractor = useCallback((item) => item.id, []);
     return (
         <ScrollView style={style.container}>
-            <Searchbar
-                style={style.searchbar}
-                traileringIcon="filter-variant"
-                onTraileringIconPress={() => setSearchModalVisible(true)}
-            />
-            <Portal>
-                <Modal
-                    contentContainerStyle={style.modalContainer}
-                    visible={searchModalVisible}
-                    onDismiss={() => setSearchModalVisible(false)}
-                >
-                    <Text style={[style.h1, style.whiteText]}>Filter</Text>
-                    <ScrollView style={{ marginBottom: 10 }}>
-                        <Text style={[style.whiteText, style.h2]}>Sort By</Text>
-                        <View style={style.chipContainer}>
-                            <MultipleSelectChip
-                                name="Order"
-                                list={tag.sortBy}
-                            />
-                        </View>
-                        <Text style={[style.whiteText, style.h2]}>Status</Text>
-                        <View style={style.chipContainer}>
-                            <MultipleSelectChip
-                                name="Status"
-                                list={tag.status}
-                            />
-                        </View>
-                        <Text style={[style.whiteText, style.h2]}>Gerne</Text>
-                        <View style={style.chipContainer}>
-                            <MultipleSelectChip
-                                name="Gerne"
-                                list={tag.genres}
-                            />
-                        </View>
-                        <Text style={[style.whiteText, style.h2]}>Theme</Text>
-                        <View style={style.chipContainer}>
-                            <MultipleSelectChip
-                                name="Theme"
-                                list={tag.themes}
-                            />
-                        </View>
-                        <Text style={[style.whiteText, style.h2]}>Format</Text>
-                        <View style={style.chipContainer}>
-                            <MultipleSelectChip
-                                name="Format"
-                                list={tag.formats}
-                            />
-                        </View>
-                        <View></View>
-                    </ScrollView>
-                    <Button
-                        mode="contained"
-                        style={style.applyBtn}
-                        onPress={() => onApplyPress()}
-                    >
-                        Apply
-                    </Button>
-                </Modal>
-            </Portal>
-
             <View style={style.horizontalListContainer}>
+                <Text>Recommend</Text>
                 <ScrollView horizontal={true}>
                     <FlatList
                         removeClippedSubviews={true}
@@ -108,6 +26,7 @@ function DiscoveryScreen() {
                         nestedScrollEnabled={true}
                     />
                 </ScrollView>
+                <Text>New to You</Text>
                 <ScrollView horizontal={true}>
                     <FlatList
                         removeClippedSubviews={true}
@@ -120,11 +39,41 @@ function DiscoveryScreen() {
                 </ScrollView>
             </View>
             <FlatList
-                // data={data}
-                // renderItem={renderItem}
-                // keyExtractor={keyExtractor}r
+                removeClippedSubviews={true}
+                data={manga ? manga : []}
+                keyExtractor={keyExtractor}
+                renderItem={({ item }) => <ListItem item={item} />}
+                initialNumToRender={5}
+                nestedScrollEnabled={true}
             />
         </ScrollView>
+    );
+}
+
+function RecommendSection() {
+    const manga = useSelector((state) => state.manga.manga);
+    const theme = useTheme();
+    const style = HomeScreenStyles(theme);
+    const keyExtractor = useCallback((item) => item.id, []);
+
+    return (
+        <>
+            <Text style={[style.h1, style.whiteText, { marginVertical: 10 }]}>
+                Recommended for You
+            </Text>
+            <SafeAreaView style={{ flex: 1 }}>
+                <FlatList
+                    horizontal={true}
+                    removeClippedSubviews={true}
+                    data={manga ? manga : []}
+                    keyExtractor={keyExtractor}
+                    renderItem={({ item }) => <CardItem item={item} />}
+                    initialNumToRender={5}
+                    nestedScrollEnabled={true}
+                />
+                <ActivityIndicator animating={true} />
+            </SafeAreaView>
+        </>
     );
 }
 

@@ -1,8 +1,8 @@
 import * as React from "react";
-
+import { StyleSheet } from "react-native";
 import { List } from "react-native-paper";
 
-const MangaListItem = () => {
+const ListItem = () => {
     <List.Item
         title="Komi can't communicate"
         description="She's mute - Robert Downey Jr."
