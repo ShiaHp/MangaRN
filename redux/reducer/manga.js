@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 
-export const url = 'http://192.168.1.12:3032'
+export const url = 'http://192.168.1.16:3032'
 // const url = 'http://localhost:3032'
 
 const initialState = {
@@ -14,6 +14,7 @@ const initialState = {
     detailManga: null,
     detailMangaCover: null,
     listChapter: null,
+    detailFirstChapter: null,
 }
 export const mangaSlice = createSlice({
     name: 'manga',
@@ -30,6 +31,9 @@ export const mangaSlice = createSlice({
         },
         setListChapter: (state, action)=>{
             state.listChapter = action.payload
+        },
+        detailFirstChapter: (state, action) => {
+            state.detailFirstChapter = action.payload
         }
     }
 })
@@ -59,7 +63,7 @@ export const getLatestMangas = (offset) => (dispatch) => {
 }
 
 
-export const { setTags, setManga, setDetailManga, setListChapter } = mangaSlice.actions
+export const { setTags, setManga, setDetailManga, setListChapter, detailFirstChapter } = mangaSlice.actions
 
 // export const randomManga = (payload) => (dispatch) => {
 //     axios({
@@ -71,7 +75,7 @@ export const { setTags, setManga, setDetailManga, setListChapter } = mangaSlice.
 //     })
 // }
 
-export const listChapter = (id,page) => (dispatch) => {
+export const listChapter = (id, page) => (dispatch) => {
     axios({
         method: 'GET',
         url: `${url}/api/v1/manga/chapter/list/${id}`,
@@ -80,7 +84,7 @@ export const listChapter = (id,page) => (dispatch) => {
                 chapter: 'desc',
                 volume: 'desc',
             },
-            offset : (page-1)*100,
+            offset : (page - 1 ) * 100,
         }
     })
         .then((res) => {
@@ -92,7 +96,7 @@ export const listChapter = (id,page) => (dispatch) => {
 }
 
 export const getDetailManga = (payload) => (dispatch) => {
-    dispatch(listChapter(payload,1))
+    dispatch(listChapter(payload, 1))
     axios({
         method: "GET",
         url: `${url}/api/v1/manga/${payload}`,
@@ -104,6 +108,7 @@ export const getDetailManga = (payload) => (dispatch) => {
             let cover = '';
             let author = '';
             let result = res.data.data.data;
+            console.log(res.data.data)
             cover = result.relationships.filter(item => item.type === "cover_art")[0]
             author = result.relationships.filter(item => item.type === "author")[0]
             result.cover = cover;
@@ -114,6 +119,18 @@ export const getDetailManga = (payload) => (dispatch) => {
         .catch((err) => {
             console.log(err);
         })
+}
+
+export const getDetailFirstChapter = (idManga) => (dispatch) => {
+    axios({
+        method: "GET",
+        url: `${url}/api/v1/manga/chapter/start/${idManga}`,
+    }).then((res) => {
+        dispatch(detailFirstChapter(res.data.data))
+    }).catch((err) => {
+        console.log(err);
+    });
+
 }
 
 export default mangaSlice.reducer

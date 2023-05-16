@@ -22,17 +22,75 @@ module.exports = {
         }
       });
       let latestChapter = 0;
+      let startChapter = 0;
+      let startChapterItem = null;
+
       for (let item of listChapter.data.data) {
-        if (Number(item.attributes.chapter) > Number(latestChapter)) {
-          latestChapter = item.attributes.chapter
+        const currentChapter = Number(item.attributes.chapter);
+
+        if (currentChapter > latestChapter) {
+          latestChapter = currentChapter;
+        }
+
+        if (startChapter === 0 || currentChapter < startChapter) {
+          startChapter = currentChapter;
+          startChapterItem = item;
         }
       }
+
+
+
 
       res.status(200).json({
         message: 'Success',
         data: {
           ...listChapter.data,
           latestChapter: latestChapter,
+          startChapter: startChapter,
+          startChapterId: startChapterItem,
+        }
+
+      })
+    } catch (e) {
+      res.status(404).json({
+        message: 'Error',
+      })
+    }
+  },
+  startChapter: async (req, res) => {
+    try {
+      // https://api.mangadex.org/manga/:idManga/feed
+      const mangaId = req.params.mangaId;
+      const listChapter = await axios({
+        method: 'get',
+        url: `${baseUrl}manga/${mangaId}/feed`,
+      });
+      let latestChapter = 0;
+      let startChapter = 0;
+      let startChapterItem = null;
+
+      for (let item of listChapter.data.data) {
+        const currentChapter = Number(item.attributes.chapter);
+
+        if (currentChapter > latestChapter) {
+          latestChapter = currentChapter;
+        }
+
+        if (startChapter === 0 || currentChapter < startChapter) {
+          startChapter = currentChapter;
+          startChapterItem = item;
+        }
+      }
+
+
+
+
+      res.status(200).json({
+        message: 'Success',
+        data: {
+          latestChapter: latestChapter,
+          startChapter: startChapter,
+          startChapterItem: startChapterItem,
         }
 
       })

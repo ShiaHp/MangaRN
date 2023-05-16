@@ -20,7 +20,7 @@ import {
 } from "react-native-paper";
 import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDetailManga, listChapter } from "../redux/reducer/manga";
+import { getDetailManga, listChapter, getDetailFirstChapter } from "../redux/reducer/manga";
 import Icon from "react-native-paper/src/components/Icon";
 import { useNavigation } from "@react-navigation/native";
 
@@ -166,16 +166,28 @@ const ChapterList = () => {
 };
 
 function DetailView({ navigation, route }) {
-  const {id} = route.params
+  const { id } = route.params
   const dispatch = useDispatch();
   const detailManga = useSelector((state) => state.manga.detailManga);
+  const detailFirstChapter = useSelector((state) => state.manga.detailFirstChapter);
+  // const [page, setPage] = useState(1);
   // const id = "34f45c13-2b78-4900-8af2-d0bb551101f4"
   useEffect(() => {
     dispatch(getDetailManga(id));
+    dispatch(getDetailFirstChapter(id));
   }, []);
   const theme = useTheme();
   const style = DetailViewStyle(theme);
 
+  const startReading = () => {
+    let chapterId, title, volume, chapter = null;
+    chapterId = detailFirstChapter.startChapterItem.id;
+    title = detailFirstChapter.startChapterItem.attributes.title;
+    volume = detailFirstChapter.startChapterItem.attributes.volume;
+    chapter = detailFirstChapter.startChapterItem.attributes.chapter;
+
+    navigation.navigate('Reader', { chapterId, title, volume, chapter })
+  };
   return detailManga ? (
     <View style={style.container}>
       <Animated.View>
@@ -278,7 +290,8 @@ function DetailView({ navigation, route }) {
               icon="play"
               mode="contained"
               style={{ marginTop: 10 }}
-              onPress={() => {}}
+              onPress=
+              {() => startReading()}
             >
               Start Reading
             </Button>

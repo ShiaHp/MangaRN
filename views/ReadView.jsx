@@ -38,7 +38,6 @@ const ReadView = ({ route, navigation }) => {
   // let volume = 3;
   // let chapter = 2;
   useEffect(() => {
-    console.log(chapterId);
     setIsLoading(true);
     async function fetchData() {
       return await axios({

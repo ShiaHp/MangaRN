@@ -6,7 +6,8 @@ const {
   getRandomManga,
   getCover,
   getListChapter,
-  detailManga
+  detailManga,
+  startChapter
 } = require("../controllers/hero.controller.js");
 const auth = require("../middleware/verifyToken.js");
 
@@ -17,6 +18,7 @@ router.route('/:id').get(detailManga)
 router.route('/random').get(getRandomManga)
 router.route('/cover/:id').get(getCover)
 router.route('/chapter/list/:mangaId').get(getListChapter)
+router.route('/chapter/start/:mangaId').get(startChapter)
 router.route('/chapter/image/:chapterId').get(listImageChapter)
 
 
