@@ -1,0 +1,383 @@
+import { useTheme, withTheme } from "react-native-paper";
+import React, { useEffect, useRef, useState } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Carousel from "react-native-reanimated-carousel";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  ScrollView,
+  FlatList,
+} from "react-native";
+import { url } from "../redux/reducer/manga";
+import { Appbar, ActivityIndicator, Badge, Snackbar } from "react-native-paper";
+import { Dimensions, Platform } from "react-native";
+import ExpoFastImage from "expo-fast-image";
+import axios from "axios";
+
+const ReadView = ({ route, navigation }) => {
+  const { chapterId, title, volume, chapter } = route.params;
+  const [pages, setPages] = useState(null);
+  const [isScrollReadMode, changeIsScrollReadMode] = useState(false);
+  const [idx, setidx] = useState(1);
+  const theme = useTheme();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSnackbarVisible, setSnackbarVisible] = useState(false);
+  const onToggleSnackBar = () => setSnackbarVisible(!isSnackbarVisible);
+  const onDismissSnackBar = () => setSnackbarVisible(false);
+  const temp = useRef(0);
+  const carousel = useRef();
+  const snackbarChildren = useRef();
+  const [imageDimensions, setImageDimensions] = useState({
+    width: Dimensions.get("screen").width,
+    height: Dimensions.get("screen").height,
+  });
+  // let chapterId = "b5cbe34b-89b3-46a2-86b7-2e92797c5cb9";
+  // let title = "title";
+  // let volume = 3;
+  // let chapter = 2;
+  useEffect(() => {
+    console.log(chapterId);
+    setIsLoading(true);
+    async function fetchData() {
+      return await axios({
+        method: "GET",
+        url: `${url}/api/v1/manga/chapter/image/${chapterId}`,
+      });
+    }
+    fetchData()
+      .then((res) => {
+        var promises = [];
+        temp.current = 0;
+        res.data.constructedUrls.forEach((src, index) => {
+          promises.push(
+            new Promise((resolve, reject) => {
+              Image.getSize(
+                src,
+                (width, height) => {
+                  let id = src.slice(-11, -4);
+                  let currentHeight = imageDimensions.width / (width / height);
+                  temp.current += currentHeight;
+                  resolve({
+                    width,
+                    height: currentHeight,
+                    src,
+                    id,
+                    index,
+                    offset: temp.current,
+                  });
+                },
+                reject
+              );
+            })
+          );
+        });
+        Promise.all(promises)
+          .then((result) => {
+            setPages(result);
+            setIsLoading(false);
+          })
+          .catch((err) => {
+            console.error(err);
+          });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [chapterId]);
+
+  const CountPage = () => {
+    return (
+      <Badge
+        style={{
+          position: "absolute",
+          bottom: 10,
+          left: imageDimensions.width / 2 - 25,
+          width: 50,
+          height: 30,
+          lineHeight: 30,
+          zIndex: 10,
+          fontSize: 14,
+          fontWeight: "bold",
+          backgroundColor: theme.colors.secondaryContainer,
+          color: theme.colors.onSecondaryContainer,
+        }}
+      >
+        {`${idx}/${pages.length}`}
+      </Badge>
+    );
+  };
+
+  const onScroll = (e) => {
+    const { y } = e.nativeEvent.contentOffset;
+    const t = [{ offset: 0 }, ...pages];
+    for (let i = 1; i < t.length; i++) {
+      if (t[i - 1].offset < y && y < t[i].offset) {
+        setidx(i);
+        break;
+      }
+    }
+  };
+
+  const movePage = (val) => {
+    if (val > 0) {
+      carousel.current.next();
+    } else {
+      carousel.current.prev();
+    }
+    let i = carousel.current.getCurrentIndex() + 1;
+    setidx(i);
+  };
+
+  const onChangeMode = () => {
+    if (isScrollReadMode) {
+      snackbarChildren.current = "Changed to Page mode";
+      changeIsScrollReadMode(false);
+    } else {
+      snackbarChildren.current = "Changed to Scroll mode";
+      changeIsScrollReadMode(true);
+    }
+    onToggleSnackBar();
+  };
+
+  return !isLoading ? (
+    Platform.OS !== "web" ? (
+      <>
+        {/* app */}
+        <Appbar.Header
+          style={{
+            backgroundColor: theme.colors.background,
+            zIndex: 5,
+            justifyContent: "space-between",
+          }}
+        >
+          <Appbar.BackAction
+            onPress={() => {
+              navigation.goBack();
+            }}
+          />
+          <View style={{ flex: 1 }}>
+            <Appbar.Content title={title ?? "No Title"} titleStyle={{}} />
+            <Appbar.Content
+              title={`Vol. ${volume ?? "none"} - Chapter. ${chapter ?? "none"}`}
+              titleStyle={{ fontSize: 13, lineHeight: 13 }}
+            />
+          </View>
+          <Appbar.Action icon="book-open" onPress={onChangeMode} />
+        </Appbar.Header>
+        {isScrollReadMode ? (
+          <ScrollView onScroll={onScroll} scrollEventThrottle={100}>
+            {/* {console.log(pages)} */}
+            {pages.map((item, index) => {
+              return (
+                <ExpoFastImage
+                  key={index}
+                  cacheKey={item.id}
+                  uri={item.src}
+                  resizeMode="contain"
+                  style={{
+                    width: imageDimensions.width - 10,
+                    height: item.height,
+                    marginBottom: 5,
+                    marginHorizontal: 5,
+                  }}
+                />
+              );
+            })}
+          </ScrollView>
+        ) : (
+          <GestureHandlerRootView>
+            <View style={{ flex: 1 }}>
+              <Carousel
+                loop={false}
+                width={imageDimensions.width}
+                height={imageDimensions.height - 60}
+                data={pages}
+                scrollAnimationDuration={500}
+                ref={carousel}
+                windowSize={200}
+                renderItem={({ index, item }) => (
+                  <ExpoFastImage
+                    key={index}
+                    cacheKey={item.id}
+                    uri={item.src}
+                    resizeMode="contain"
+                    style={{
+                      width: imageDimensions.width - 10,
+                      height: item.height,
+                      marginBottom: 5,
+                      marginHorizontal: 5,
+                    }}
+                  />
+                )}
+              />
+            </View>
+            <View
+              style={{
+                position: "absolute",
+                width: imageDimensions.width,
+                height: imageDimensions.height - 60,
+                flex: 1,
+                flexDirection: "row",
+                zIndex: 5,
+                top: 0,
+                left: 0,
+                right: 0,
+              }}
+            >
+              <View
+                style={{ flex: 1 }}
+                onTouchEnd={() => {
+                  movePage(-1);
+                }}
+              ></View>
+              <View
+                style={{ flex: 1 }}
+                onTouchEnd={() => {
+                  movePage(+1);
+                }}
+              ></View>
+            </View>
+          </GestureHandlerRootView>
+        )}
+
+        <CountPage />
+      </>
+    ) : (
+      // webb
+      <>
+        <Appbar.Header
+          mode="medium"
+          style={{
+            backgroundColor: theme.colors.background,
+            zIndex: 5,
+            flex: 1,
+            justifyContent: "space-between",
+          }}
+        >
+          <Appbar.BackAction
+            onPress={() => {
+              navigation.goBack();
+            }}
+          />
+          <View style={{ flex: 1 }}>
+            <Appbar.Content title={title ?? "No Title"} titleStyle={{}} />
+            <Appbar.Content
+              title={`Vol. ${volume ?? "none"} - Chapter. ${chapter ?? "none"}`}
+              titleStyle={{ fontSize: 13, lineHeight: 13 }}
+            />
+          </View>
+
+          <Appbar.Action icon="book-open" onPress={onChangeMode} />
+        </Appbar.Header>
+        {isScrollReadMode ? (
+          <ScrollView
+            style={{ backgroundColor: theme.colors.background }}
+            onScroll={onScroll}
+            scrollEventThrottle={150}
+          >
+            {pages.map((item, index) => (
+              <Image
+                key={index}
+                source={{ uri: item.src }}
+                resizeMode="contain"
+                style={{
+                  width: imageDimensions.width - 10,
+                  height: item.height,
+                  marginBottom: 5,
+                  marginHorizontal: 5,
+                }}
+              />
+            ))}
+          </ScrollView>
+        ) : (
+          <GestureHandlerRootView>
+            <View style={{ flex: 1 }}>
+              <Carousel
+                loop={false}
+                width={imageDimensions.width}
+                height={imageDimensions.height - 60}
+                data={pages}
+                scrollAnimationDuration={500}
+                ref={carousel}
+                renderItem={({ index, item }) => (
+                  <Image
+                    key={index}
+                    source={{ uri: item.src }}
+                    resizeMode="contain"
+                    style={{
+                      width: imageDimensions.width - 10,
+                      height: item.height,
+                      marginBottom: 5,
+                      marginHorizontal: 5,
+                    }}
+                  />
+                )}
+              />
+            </View>
+            <View
+              style={{
+                position: "absolute",
+                width: imageDimensions.width,
+                height: imageDimensions.height - 60,
+                flex: 1,
+                flexDirection: "row",
+                zIndex: 5,
+                top: 0,
+                left: 0,
+                right: 0,
+              }}
+            >
+              <View
+                style={{ flex: 1 }}
+                onTouchEnd={() => {
+                  movePage(-1);
+                }}
+              ></View>
+              <View
+                style={{ flex: 1 }}
+                onTouchEnd={() => {
+                  movePage(+1);
+                }}
+              ></View>
+            </View>
+          </GestureHandlerRootView>
+        )}
+        <Snackbar
+          visible={isSnackbarVisible}
+          onDismiss={onDismissSnackBar}
+          duration={500}
+          style={{ backgroundColor: theme.colors.secondaryContainer }}
+          theme={{ colors: theme.colors.onSecondaryContainer }}
+          children={snackbarChildren.current}
+        ></Snackbar>
+        <CountPage />
+      </>
+    )
+  ) : (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: theme.colors.background,
+        height: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <ActivityIndicator
+        animating={true}
+        color={theme.colors.onBackground}
+        size={30}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  pagerView: {
+    flex: 1,
+  },
+});
+
+export default withTheme(ReadView);

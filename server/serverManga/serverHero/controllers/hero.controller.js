@@ -9,15 +9,15 @@ module.exports = {
     try {
       // https://api.mangadex.org/manga/:idManga/feed
       const mangaId = req.params.mangaId;
-      const {order, limit, offset,includes} = req.query;
+      const { order, limit, offset, includes } = req.query;
       const listChapter = await axios({
         method: 'get',
         url: `${baseUrl}manga/${mangaId}/feed`,
-        params : {
+        params: {
           order,
           limit,
           offset,
-          translatedLanguage : ['en'],
+          translatedLanguage: ['en'],
           includes,
         }
       });
@@ -128,7 +128,7 @@ module.exports = {
           limit,
           offset,
           includes,
-          availableTranslatedLanguage : ['en'],
+          availableTranslatedLanguage: ['en'],
           'includedTags': includedTagIDs,
           'excludedTags': excludedTagIDs,
           // ...finalOrderQuery
@@ -164,11 +164,10 @@ module.exports = {
       const response = await axios({
         method: 'GET',
         url: `${baseUrl}/manga/${idManga}`,
-        params : {
-          includes : ['cover_art','author']
+        params: {
+          includes: ['cover_art', 'author']
         }
       })
-   
 
       res.status(200).json(
         {

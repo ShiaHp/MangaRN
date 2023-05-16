@@ -2,5 +2,6 @@ import LoginView from "./LoginView"
 import RegisterView from "./RegisterView"
 import HomeView from "./HomeView"
 import DetailView from "./DetailView"
+import ReadView from "./ReadView"
 import DiscoveryView from "./DiscoveryView"
-export {LoginView, RegisterView, HomeView, DetailView, DiscoveryView}
+export {LoginView, RegisterView, HomeView, DetailView, DiscoveryView, ReadView}
