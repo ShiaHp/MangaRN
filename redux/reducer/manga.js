@@ -21,7 +21,8 @@ const initialState = {
     detailMangaCover: null,
     listChapter: null,
     selectedTags: [],
-    searchResult: null
+    searchResult: null,
+    detailFirstChapter: null,
 }
 export const mangaSlice = createSlice({
     name: 'manga',
@@ -74,6 +75,9 @@ export const mangaSlice = createSlice({
         },
         setTags :(state, action) =>{
             state.tags = action.payload
+        },
+        detailFirstChapter: (state, action) => {
+            state.detailFirstChapter = action.payload
         }
     }
 })
@@ -198,7 +202,7 @@ export const getMangaByQuery = (query)=> (dispatch, getState) =>{
         })
 }
 
-export const listChapter = (id, page) => (dispatch) => {
+export const listChapter = (id,  page) => (dispatch) => {
     axios({
         method: 'GET',
         url: `${url}/api/v1/manga/chapter/list/${id}`,
@@ -227,7 +231,7 @@ export const listChapter = (id, page) => (dispatch) => {
 }
 
 export const getDetailManga = (payload) => (dispatch) => {
-    dispatch(listChapter(payload, 1))
+    dispatch(listChapter(payload,  1))
     axios({
         method: "GET",
         url: `${url}/api/v1/manga/${payload}`,
@@ -239,6 +243,7 @@ export const getDetailManga = (payload) => (dispatch) => {
             let cover = '';
             let author = '';
             let result = res.data.data.data;
+            console.log(res.data.data)
             cover = result.relationships.filter(item => item.type === "cover_art")[0]
             author = result.relationships.filter(item => item.type === "author")[0]
             result.cover = cover;
@@ -249,6 +254,18 @@ export const getDetailManga = (payload) => (dispatch) => {
         .catch((err) => {
             console.log(err);
         })
+}
+
+export const getDetailFirstChapter = (idManga) => (dispatch) => {
+    axios({
+        method: "GET",
+        url: `${url}/api/v1/manga/chapter/start/${idManga}`,
+    }).then((res) => {
+        dispatch(detailFirstChapter(res.data.data))
+    }).catch((err) => {
+        console.log(err);
+    });
+
 }
 
 export default mangaSlice.reducer

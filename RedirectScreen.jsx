@@ -26,12 +26,12 @@ const RedirectScreen = () => {
               <Stack.Screen name="Detail" component={DetailView} />
               <Stack.Screen name="Reader" component={ReadView} />
             </>
-          {/* ) : (
-            <>
+          {/* ) : ( */}
+            {/* <>
               <Stack.Screen name="Login" component={LoginView} />
               <Stack.Screen name="Register" component={RegisterView} />
-            </>
-          )} */}
+            </> */}
+          {/* )} */}
         </Stack.Navigator>
       </NavigationContainer>
     </>
