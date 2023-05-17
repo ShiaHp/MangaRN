@@ -20,47 +20,11 @@ import {
 } from "react-native-paper";
 import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDetailManga, listChapter, storeReadList, setReadListChapter } from "../redux/reducer/manga";
+import { getDetailManga, listChapter, storeReadList, setReadListChapter,setDetailManga } from "../redux/reducer/manga";
 import Icon from "react-native-paper/src/components/Icon";
 import { useNavigation } from "@react-navigation/native";
 import read from '../example.json'
-const chapters = [
-  {
-    title: "A story of long title",
-    volume: 3,
-    chapter: 10,
-    dateUpload: "12/12/2121",
-    author: "Unknown",
-  },
-  {
-    title: "A story of long title",
-    volume: 3,
-    chapter: 10,
-    dateUpload: "12/12/2121",
-    author: "Unknown",
-  },
-  {
-    title: "A story of long title",
-    volume: 3,
-    chapter: 10,
-    dateUpload: "12/12/2121",
-    author: "Unknown",
-  },
-  {
-    title: "A story of long title",
-    volume: 3,
-    chapter: 10,
-    dateUpload: "12/12/2121",
-    author: "Unknown",
-  },
-  {
-    title: "A story of long title",
-    volume: 3,
-    chapter: 10,
-    dateUpload: "12/12/2121",
-    author: "Unknown",
-  },
-];
+
 
 const PageRenderer = ({ times }) => {
   const arr = Array(times).fill(null);
@@ -176,7 +140,7 @@ const ChapterList = () => {
                   {item.attributes.title?item.attributes.title:'No Title'}
                 </Text>
                 <Text style={[style.whiteText]}>
-                  {item.attributes.updatedAt?.slice(0, 10)} - unknown
+                  {item.attributes.updatedAt?.slice(0, 10)} - {item.trans.attributes.name}
                 </Text>
               </View>
               <IconButton
@@ -199,7 +163,7 @@ const ChapterList = () => {
           marginVertical: 20,
         }}
       >
-        <PageRenderer times={Math.ceil(listChapter.total / 100)} />
+        <PageRenderer times={Math.ceil(listChapter.total / 30)} />
       </View>
     </View>
   ) : (
@@ -214,6 +178,9 @@ function DetailView({ navigation, route }) {
   const detailManga = useSelector((state) => state.manga.detailManga);
   useEffect(() => {
     dispatch(getDetailManga(id));
+    return ()=>{
+      dispatch(setDetailManga(null));
+    }
   }, [id]);
   const theme = useTheme();
   const style = DetailViewStyle(theme);
@@ -355,7 +322,10 @@ function DetailView({ navigation, route }) {
       </ScrollView>
     </View>
   ) : (
-    <ActivityIndicator animating={true} color={theme.colors.primary} />
+    <View style={[style.container, {alignItems:'center',justifyContent:'center', height:'100%'}]}>
+
+      <ActivityIndicator animating={true} color={theme.colors.primary} />
+    </View>
   );
 }
 

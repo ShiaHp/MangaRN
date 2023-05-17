@@ -1,10 +1,11 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from "react";
+import { View, StyleSheet } from "react-native";
 import { CommonActions } from "@react-navigation/native";
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, BottomNavigation } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import HomeScreen from './HomeScreen';
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Text, BottomNavigation } from "react-native-paper";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import HomeScreen from "./HomeScreen";
+import { HistoryView } from "../views";
 const Tab = createBottomTabNavigator();
 
 export default function BottomBar() {
@@ -16,10 +17,10 @@ export default function BottomBar() {
       tabBar={({ navigation, state, descriptors, insets }) => (
         <BottomNavigation.Bar
           navigationState={state}
-         safeAreaInsets={insets}
+          safeAreaInsets={insets}
           onTabPress={({ route, preventDefault }) => {
             const event = navigation.emit({
-              type: 'tabPress',
+              type: "tabPress",
               target: route.key,
               canPreventDefault: true,
             });
@@ -27,7 +28,7 @@ export default function BottomBar() {
             if (event.defaultPrevented) {
               preventDefault();
             } else {
-             navigation.dispatch({
+              navigation.dispatch({
                 ...CommonActions.navigate(route.name, route.params),
                 target: state.key,
               });
@@ -56,20 +57,31 @@ export default function BottomBar() {
       )}
     >
       <Tab.Screen
+        name="History"
+        component={HistoryView}
+        options={{
+          tabBarLabel: "History",
+          tabBarIcon: ({ color, size }) => {
+            return <Icon name="history" size={size} color={color} />;
+          },
+        }}
+      />
+      <Tab.Screen
         name="Homes"
         component={HomeScreen}
         options={{
-          tabBarLabel: 'Homes',
+          tabBarLabel: "Homes",
           tabBarIcon: ({ color, size }) => {
             return <Icon name="home" size={size} color={color} />;
           },
         }}
       />
+
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
-          tabBarLabel: 'Settings',
+          tabBarLabel: "Settings",
           tabBarIcon: ({ color, size }) => {
             return <Icon name="cog" size={size} color={color} />;
           },
@@ -78,8 +90,6 @@ export default function BottomBar() {
     </Tab.Navigator>
   );
 }
-
-
 
 function SettingsScreen() {
   return (
@@ -92,7 +102,7 @@ function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
