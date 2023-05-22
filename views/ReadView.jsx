@@ -52,8 +52,8 @@ const ReadView = ({ route, navigation }) => {
     setIsLoading(true);
     async function fetchData() {
       return await axios({
-        method: "GET",
         url: `${url}/api/v1/manga/chapter/image/${chapterId}`,
+        method: "GET",
       });
     }
     fetchData()
