@@ -3,9 +3,10 @@ import axios from "axios";
 import json from '../../example.json'
 import { storeData } from "../../features/asyncStorage";
 import { getData } from "../../features/asyncStorage";
-// export const url = 'http://192.168.1.15:3032'
-export const url = 'http://localhost:3032'
-// export const url = 'http://192.168.23.48:3032'
+import {urlAuth} from './user'
+export const urlManga = 'http://192.168.1.10:3032'
+// export const urlManga = 'http://localhost:3032'
+// export const urlManga = 'http://192.168.23.48:3032'
 
 const initialState = {
     manga: [],
@@ -15,7 +16,7 @@ const initialState = {
         theme: [],
     },
     offset: 0,
-    readList: {},
+    readList: [],
     listManga: null,
     detailManga: null,
     detailMangaCover: null,
@@ -39,7 +40,7 @@ export const mangaSlice = createSlice({
         setDetailManga: (state, action) => {
             state.detailManga = action.payload
         },
-        setSearchResult: (state, action) =>{
+        setSearchResult: (state, action) => {
             state.searchResult = action.payload
         },
         setManga: (state, action) => {
@@ -47,8 +48,10 @@ export const mangaSlice = createSlice({
         },
         setListChapter: (state, action) => {
             let { id, result } = action.payload
+            let mangaIdx = state.readList?.findIndex((item) => item.mangaId === id)
+            console.log(current(state.readList));
             result.data = result.data.map(item => {
-                if (state.readList && state.readList[id] && state.readList[id]?.list.includes(item.id))
+                if (state.readList[mangaIdx] && state.readList[mangaIdx]?.chapterId.includes(item.id))
                     return { ...item, hasRead: true }
                 else
                     return { ...item, hasRead: false }
@@ -70,10 +73,10 @@ export const mangaSlice = createSlice({
         setReadList: (state, action) => {
             state.readList = action.payload
         },
-        setSearchResult : (state, action) =>{
+        setSearchResult: (state, action) => {
             state.searchResult = action.payload
         },
-        setTags :(state, action) =>{
+        setTags: (state, action) => {
             state.tags = action.payload
         },
         detailFirstChapter: (state, action) => {
@@ -81,37 +84,77 @@ export const mangaSlice = createSlice({
         }
     }
 })
-export const { setManga, setDetailManga, setListChapter, setReadList, setReadListChapter, setSelectedTags, setTags, setSearchResult } = mangaSlice.actions
+export const { setManga, setDetailManga, setListChapter, setReadList, setReadListChapter, setSelectedTags, setTags, setSearchResult, detailFirstChapter } = mangaSlice.actions
 
-export const storeReadList = (mangaId, chapterId, chapter) => (dispatch, getState) => {
+export const storeReadList = (mangaId, chapterId, chapter, title) => (dispatch, getState) => {
     const state = getState();
-    let readList = { ...state.manga.readList }; // Create a shallow copy of the readList object
-
-    if (readList[mangaId]) {
-        readList[mangaId] = {
-            ...readList[mangaId],
-            list: [...readList[mangaId].list, chapterId]
+    axios({
+        method : 'PUT',
+        url : `${urlAuth}api/v1/users/reading-history/${state.user.value.id}`,
+        data :{
+            mangaTitle : title, 
+            mangaId, 
+            lastChapter : chapter,
+            lastPage : 1,
+            lastTimeRead : Date.now(),
+            chapterId
+        }
+    })
+    .then(({data})=>{
+        console.log(data);
+    })
+    let readList = [...state.manga.readList]; // Create a shallow copy of the readList object
+    let mangaIdx = readList.findIndex((item) => item.mangaId === mangaId)
+    if (mangaIdx !== -1) {
+        readList[mangaIdx] = {
+            ...readList[mangaIdx],
+            chapterId: [...readList[mangaIdx].chapterId, chapterId],
+            lastChapter: chapter,
+            mangaTitle : title,
+            lastTimeRead: Date.now(),
         };
     } else {
-        readList[mangaId] = {
-            list: [chapterId]
-        };
+        readList.push({
+            mangaId,
+            chapterId: [chapterId],
+            lastReadChapter: chapter,
+            lastTimeRead: Date.now(),
+        })
     }
-    console.log(readList);
+    // console.log(readList);
     dispatch(setReadList(readList));
     storeData('readList', readList);
 };
 
-export const getReadListFromStore = () => (dispatch) => {
-    getData('readList')
-        .then((value) => {
-            dispatch(setReadList(value))
-        })
+export const getReadListFromStore = () => async (dispatch, getState) => {
+    const state = getState()
+
+    let sData = await getData('readList')
+    let fetch = await axios({
+        method: "GET",
+        url: `${urlAuth}api/v1/users/reading-history/${state.user.value.id}`,
+    })
+    if (sData) {
+        let result = fetch.data.concat(sData)
+        dispatch(setReadList(result))
+    }else{
+        dispatch(setReadList(fetch.data))
+    }
+}
+
+export const deleteReadListById = (id) => async (dispatch, getState) => {
+    const state = getState();
+    let readList = [...state.manga.readList];
+    let mangaIdx = readList.findIndex((item) => item.mangaId === id)
+    delete readList[mangaIdx]
+    dispatch(setReadList(readList))
+    storeData('readList', readList);
+
 }
 
 export const getLatestMangas = (offset) => (dispatch) => {
     axios({
-        url: `${url}/api/v1/manga`,
+        url: `${urlManga}/api/v1/manga`,
         method: 'GET',
         params: {
             limit: 20,
@@ -138,38 +181,38 @@ export const getLatestMangas = (offset) => (dispatch) => {
 // export const randomManga = (payload) => (dispatch) => {
 //     axios({
 //         method: 'GET',
-//         url:`${url}api/v1/manga/random`,
+//         url:`${urlManga}api/v1/manga/random`,
 //     }).then((res) => {
 //         dispatch(setOneManga(res.data.data));
 
 //     })
 // }
 
-export const getTags = ()=>(dispatch) =>{
+export const getTags = () => (dispatch) => {
     axios({
-        url : 'https://api.mangadex.org/manga/tag',
-        method:'GET',
-    }).then(({data})=>{
+        url: 'https://api.mangadex.org/manga/tag',
+        method: 'GET',
+    }).then(({ data }) => {
         let temp = {
             format: [],
             genre: [],
             theme: [],
         }
-        data.data.forEach((item)=>{
+        data.data.forEach((item) => {
             // console.log(temp[item.attributes.group]);
-            if(temp[item.attributes.group])
-                temp[item.attributes.group].push({id: item.id, name : item.attributes.name.en})
+            if (temp[item.attributes.group])
+                temp[item.attributes.group].push({ id: item.id, name: item.attributes.name.en })
         })
         dispatch(setTags(temp))
     })
-    .catch((err)=>{
-        console.log('tags:',err);
-    })
+        .catch((err) => {
+            console.log('tags:', err);
+        })
 }
 
-export const getMangaByQuery = (query)=> (dispatch, getState) =>{
+export const getMangaByQuery = (query) => (dispatch, getState) => {
     const state = getState()
-    const {selectedTags} = state.manga
+    const { selectedTags } = state.manga
     // console.log(selectedTags);
     axios({
         url: `https://api.mangadex.org/manga`,
@@ -177,14 +220,14 @@ export const getMangaByQuery = (query)=> (dispatch, getState) =>{
         params: {
             limit: 50,
             // offset: offset * 20,
-            includes: ["cover_art","author"],
-            title : query,
-            includedTags : selectedTags,
-            contentRating : ['safe']
+            includes: ["cover_art", "author"],
+            title: query,
+            includedTags: selectedTags,
+            contentRating: ['safe']
 
         }
     })
-        .then(({data}) => {
+        .then(({ data }) => {
             const mangaList = data.data
             var cover = null
             var author = null
@@ -194,7 +237,6 @@ export const getMangaByQuery = (query)=> (dispatch, getState) =>{
                 mangaList[index].cover = cover
                 mangaList[index].author = author
             });
-            console.log(mangaList);
             dispatch(setSearchResult(mangaList))
         })
         .catch((err) => {
@@ -202,21 +244,22 @@ export const getMangaByQuery = (query)=> (dispatch, getState) =>{
         })
 }
 
-export const listChapter = (id,  page) => (dispatch) => {
+export const listChapter = (id, page) => (dispatch) => {
+    // console.log(`${url}/api/v1/manga/chapter/list/${id}`);
     axios({
         method: 'GET',
-        url: `${url}/api/v1/manga/chapter/list/${id}`,
+        url: `${urlManga}/api/v1/manga/chapter/list/${id}`,
         params: {
             order: {
                 chapter: 'desc',
                 volume: 'desc',
             },
             offset: (page - 1) * 30,
-            limit : 30,
-            includes : ['scanlation_group']
+            limit: 30,
+            includes: ['scanlation_group']
         }
     })
-        .then(({data}) => {
+        .then(({ data }) => {
             const result = data.data
             var trans = null
             result.data.forEach((element, index) => {
@@ -231,10 +274,10 @@ export const listChapter = (id,  page) => (dispatch) => {
 }
 
 export const getDetailManga = (payload) => (dispatch) => {
-    dispatch(listChapter(payload,  1))
+    dispatch(listChapter(payload, 1))
     axios({
         method: "GET",
-        url: `${url}/api/v1/manga/${payload}`,
+        url: `${urlManga}/api/v1/manga/${payload}`,
         params: {
             includes: ['cover_art', 'author']
         }
@@ -243,7 +286,6 @@ export const getDetailManga = (payload) => (dispatch) => {
             let cover = '';
             let author = '';
             let result = res.data.data.data;
-            console.log(res.data.data)
             cover = result.relationships.filter(item => item.type === "cover_art")[0]
             author = result.relationships.filter(item => item.type === "author")[0]
             result.cover = cover;
@@ -259,7 +301,7 @@ export const getDetailManga = (payload) => (dispatch) => {
 export const getDetailFirstChapter = (idManga) => (dispatch) => {
     axios({
         method: "GET",
-        url: `${url}/api/v1/manga/chapter/start/${idManga}`,
+        url: `${urlManga}/api/v1/manga/chapter/start/${idManga}`,
     }).then((res) => {
         dispatch(detailFirstChapter(res.data.data))
     }).catch((err) => {

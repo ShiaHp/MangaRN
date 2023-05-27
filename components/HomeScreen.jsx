@@ -9,7 +9,7 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import Styles from "./HomeScreenStyle";
+import { documentDirectory } from "expo-file-system";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   useTheme,
@@ -31,195 +31,11 @@ import { useRef } from "react";
 import CardItem from "./CardItem";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
-const MultipleSelectChip = memo(
-  ({ name, list, selectChips, isApplyPressed, onPassProps }) => {
-    const theme = useTheme();
-    const style = HomeScreenStyles(theme);
-    const [selectedChips, setSelectedChips] = useState(selectChips);
-    const firstUpdate = useRef(true);
-    console.log("render chhild");
-    useEffect(() => {
-      if (firstUpdate.current) {
-        firstUpdate.current = false;
-        return;
-      }
-      onPassProps(name, selectedChips);
-    }, [isApplyPressed]);
-
-    const toggleSelectedChip = (chip) => {
-      setSelectedChips((prevState) => {
-        if (prevState.includes(chip)) {
-          return prevState.filter((item) => item !== chip);
-        }
-        return [...prevState, chip];
-      });
-    };
-    return list.map((element) => (
-      <Chip
-        style={[
-          style.chip,
-          selectedChips &&
-            selectedChips.includes(element) &&
-            style.selectedChip,
-        ]}
-        key={element}
-        textStyle={[
-          style.chipText,
-          selectedChips &&
-            selectedChips.includes(element) &&
-            style.selectedChipText,
-        ]}
-        onPress={() => toggleSelectedChip(element)}
-      >
-        {element}
-      </Chip>
-    ));
-  }
-);
-
-const SearchSection = memo(() => {
-  console.log("render searchh");
-  const theme = useTheme();
-  const style = HomeScreenStyles(theme);
-  const [searchModalVisible, setSearchModalVisible] = useState(false);
-  const [generalSelected, setGeneralSelected] = useState({
-    Order: [],
-    Status: [],
-    Gerne: [],
-    Theme: [],
-    Format: [],
-  });
-  const count = useRef(0);
-  const onApplyPress = () => {
-    ++count.current;
-    setSearchModalVisible(false);
-  };
-
-  const onPassProps = (name, selectedChips) => {
-    setGeneralSelected((prev) => {
-      return {
-        ...prev,
-        [name]: selectedChips,
-      };
-    });
-  };
-
-  const searchChips = useMemo(() => {
-    const chips = [];
-    Object.keys(generalSelected).forEach((element) => {
-      generalSelected[element] &&
-        generalSelected[element].map((el) => {
-          chips.push(el);
-        });
-    });
-    return chips;
-  }, [generalSelected]);
-  return (
-    <>
-      <Searchbar
-        style={style.searchbar}
-        traileringIcon="filter-variant"
-        onTraileringIconPress={() => {
-          setSearchModalVisible(true);
-        }}
-      />
-      <Portal>
-        <Modal
-          contentContainerStyle={style.modalContainer}
-          visible={searchModalVisible}
-          onDismiss={() => {
-            setSearchModalVisible(false);
-          }}
-        >
-          <Text style={[style.h1, style.whiteText]}>Filter</Text>
-          <ScrollView style={{ marginBottom: 10 }}>
-            <Text style={[style.whiteText, style.h2]}>Sort By</Text>
-            <View style={style.chipContainer}>
-              <MultipleSelectChip
-                name="Order"
-                list={tag.sortBy}
-                // onSelectChips={onSelectChips}
-                selectChips={generalSelected["Order"]}
-                isApplyPressed={count.current}
-                onPassProps={onPassProps}
-              />
-            </View>
-            <Text style={[style.whiteText, style.h2]}>Status</Text>
-            <View style={style.chipContainer}>
-              <MultipleSelectChip
-                name="Status"
-                list={tag.status}
-                // onSelectChips={onSelectChips}
-                selectChips={generalSelected["Status"]}
-                isApplyPressed={count.current}
-                onPassProps={onPassProps}
-              />
-            </View>
-            <Text style={[style.whiteText, style.h2]}>Gerne</Text>
-            <View style={style.chipContainer}>
-              <MultipleSelectChip
-                name="Gerne"
-                list={tag.genres}
-                // onSelectChips={onSelectChips}
-                selectChips={generalSelected["Gerne"]}
-                isApplyPressed={count.current}
-                onPassProps={onPassProps}
-              />
-            </View>
-            <Text style={[style.whiteText, style.h2]}>Theme</Text>
-            <View style={style.chipContainer}>
-              <MultipleSelectChip
-                name="Theme"
-                list={tag.themes}
-                // onSelectChips={onSelectChips}
-                selectChips={generalSelected["Theme"]}
-                isApplyPressed={count.current}
-                onPassProps={onPassProps}
-              />
-            </View>
-            <Text style={[style.whiteText, style.h2]}>Format</Text>
-            <View style={style.chipContainer}>
-              <MultipleSelectChip
-                name="Format"
-                list={tag.formats}
-                // onSelectChips={onSelectChips}
-                selectChips={generalSelected["Format"]}
-                isApplyPressed={count.current}
-                onPassProps={onPassProps}
-              />
-            </View>
-            <View></View>
-          </ScrollView>
-          <Button
-            mode="contained"
-            style={style.applyBtn}
-            onPress={() => onApplyPress()}
-          >
-            Apply
-          </Button>
-        </Modal>
-      </Portal>
-      <View style={style.chipContainer}>
-        {searchChips.map((el) => {
-          return (
-            <Chip
-              style={[style.chip, style.selectedChip]}
-              key={el}
-              textStyle={[style.chipText, style.selectedChipText]}
-            >
-              {el}
-            </Chip>
-          );
-        })}
-      </View>
-    </>
-  );
-});
 
 const PopularSection = memo(() => {
   const navigation = useNavigation()
   const carousel = useRef();
-  console.log("render popular");
+  // console.log("render popular");
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   const width = Dimensions.get("window").width;
@@ -240,7 +56,7 @@ const PopularSection = memo(() => {
         temp[index].cover = cover;
         temp[index].author = author;
       });
-      console.log(temp);
+      // console.log(temp);
       setPopularList(temp);
     });
   }, []);
@@ -363,7 +179,7 @@ function HomeScreen({ navigation }) {
   console.log("render parent");
   const dispatch = useDispatch();
   const [page, increasePage] = useState(0);
-
+  // console.log(documentDirectory);
   useEffect(() => {
     dispatch(getLatestMangas(page));
   }, [page]);

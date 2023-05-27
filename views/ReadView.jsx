@@ -13,7 +13,7 @@ import {
   ToastAndroid,
   Alert
 } from "react-native";
-import { url } from "../redux/reducer/manga";
+import { urlManga } from "../redux/reducer/manga";
 import { Appbar, ActivityIndicator, Badge, Snackbar } from "react-native-paper";
 import { Dimensions, Platform } from "react-native";
 import ExpoFastImage from "expo-fast-image";
@@ -52,7 +52,7 @@ const ReadView = ({ route, navigation }) => {
     setIsLoading(true);
     async function fetchData() {
       return await axios({
-        url: `${url}/api/v1/manga/chapter/image/${chapterId}`,
+        url: `${urlManga}/api/v1/manga/chapter/image/${chapterId}`,
         method: "GET",
       });
     }
@@ -60,7 +60,6 @@ const ReadView = ({ route, navigation }) => {
       .then((res) => {
         var promises = [];
         temp.current = 0;
-        console.log(res.data)
         setNextChapter(res.data.nextChapterItem);
         setPrevChapter(res.data.preChapterItem);
 

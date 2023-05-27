@@ -23,8 +23,6 @@ function LoginView({ navigation }) {
                     value={email}
                     onChangeText={setEmail}
                     mode="outlined"
-                    // underlineColor="transparent"
-                    // activeUnderlineColor="transparent"
                     placeholder="Email"
                     left={<TextInput.Icon icon="account" />}
                 ></TextInput>
@@ -32,9 +30,8 @@ function LoginView({ navigation }) {
                     style={style.input}
                     value={password}
                     onChangeText={setPassword}
+                    secureTextEntry={true}
                     mode="outlined"
-                    // underlineColor="transparent"
-                    // activeUnderlineColor="transparent"
                     placeholder="Password"
                     left={<TextInput.Icon icon="lock" />}
                 ></TextInput>

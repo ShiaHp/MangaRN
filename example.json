@@ -1,19 +1,14 @@
-{
-  "dcdcc8c7-932e-4f60-a900-5f19934eb6cf": {
-      "list": [
-          "e83af3cd-b971-4e18-829b-ff5162cab2f7",
-          "0c05296d-f0e1-4e34-a48b-dbf388cfd13f"
-      ],
-      "lastRead" : "2023-05-16T03:43:39",
-      "lastReadChapter" : "1"
-  },
-  "eb2d1a45-d4e7-4e32-a171-b5b029c5b0cb": {
-      "list": [
-          "455d1350-5795-49fe-8c8d-15a2a409d06f"
-      ],
-      "lastRead" : "2023-05-16T03:43:39",
-      "lastReadChapter" : "1"
-  }
-}
-
-
+[
+    {
+        "mangaTitle": "Psycho Party",
+        "mangaId": "f1f5c63e-668c-4055-9328-f6fe2cc200ee",
+        "lastChapter": 1,
+        "lastPage": 1,
+        "lastTimeRead": 1684639289280,
+        "chapterId": [
+            "ae997795-cd28-4ad8-b209-eea1cbdea32e"
+        ],
+        "updatedAt": "2023-05-21T02:21:54.949Z",
+        "_id": "64698e5fff0afacc808a3616"
+    }
+]

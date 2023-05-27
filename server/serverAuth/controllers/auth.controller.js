@@ -33,14 +33,11 @@ const register = async (req, res, next) => {
       const user = await User.create(req.body)
       console.log(user)
       const token = signToken(user.id);
-  
+      user.password = undefined;
       return res.status(StatusCodes.CREATED).json({
           message: 'User created successfully',
           token: token,
-          user: {
-              email: user.email,
-              id: user.id,
-          }
+          user: user
       });
   
     } catch (error) {

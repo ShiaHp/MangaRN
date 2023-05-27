@@ -48,7 +48,6 @@ router.patch('/reading-history/:userId', async(req,res) => {
                     },
                 },
             },
-            { new: true },
         );
         res.status(200).json({
             message: 'Success'
