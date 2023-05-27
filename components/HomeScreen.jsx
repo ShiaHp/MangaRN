@@ -7,6 +7,7 @@ import {
   Dimensions,
   Image,
   FlatList,
+  TouchableOpacity,
 } from "react-native";
 import Styles from "./HomeScreenStyle";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -20,7 +21,7 @@ import {
   Button,
 } from "react-native-paper";
 import Carousel from "react-native-reanimated-carousel";
-import {ActivityIndicator} from 'react-native-paper'
+import { ActivityIndicator } from "react-native-paper";
 import { setTags, getLatestMangas } from "../redux/reducer/manga";
 import { useSelector, useDispatch } from "react-redux";
 import tag from "../tag.json";
@@ -28,6 +29,8 @@ import example from "../example.json";
 import { useState, memo, useEffect, useMemo, useCallback } from "react";
 import { useRef } from "react";
 import CardItem from "./CardItem";
+import axios from "axios";
+import { useNavigation } from "@react-navigation/native";
 const MultipleSelectChip = memo(
   ({ name, list, selectChips, isApplyPressed, onPassProps }) => {
     const theme = useTheme();
@@ -214,11 +217,33 @@ const SearchSection = memo(() => {
 });
 
 const PopularSection = memo(() => {
-  const carousel = useRef()
+  const navigation = useNavigation()
+  const carousel = useRef();
   console.log("render popular");
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   const width = Dimensions.get("window").width;
+  const [popularList, setPopularList] = useState();
+  useEffect(() => {
+    axios({
+      url: `https://api.mangadex.org/manga?includes[]=cover_art&includes[]=artist&includes[]=author&order[followedCount]=desc&contentRating[]=safe&hasAvailableChapters=true`,
+      method: "GET",
+    }).then(({ data }) => {
+      let temp = data.data;
+      let temp1 = temp.forEach((element, index) => {
+        let cover = element.relationships.filter(
+          (item) => item.type === "cover_art"
+        )[0];
+        let author = element.relationships.filter(
+          (item) => item.type === "author"
+        )[0];
+        temp[index].cover = cover;
+        temp[index].author = author;
+      });
+      console.log(temp);
+      setPopularList(temp);
+    });
+  }, []);
 
   return (
     <>
@@ -227,80 +252,84 @@ const PopularSection = memo(() => {
       </Text>
       <GestureHandlerRootView>
         <View style={{ flex: 1 }}>
-          <Carousel
-
-            loop
-            // autoPlay
-            autoPlayInterval={2000}
-            width={width - 20}
-            height={width / 2}
-            data={example.manga}
-            scrollAnimationDuration={1500}
-            ref={carousel}
-            renderItem={({ index, item }) => (
-              <View
-                style={{
+          {popularList ? (
+            <Carousel
+              loop
+              autoPlay
+              autoPlayInterval={2000}
+              width={width - 20}
+              height={width / 2}
+              data={popularList}
+              scrollAnimationDuration={1500}
+              ref={carousel}
+              renderItem={({ index, item }) => (
+                <TouchableOpacity onPress={()=>navigation.navigate('Detail',{id:item.id})} style={{
                   flex: 1,
                   borderWidth: 1,
                   justifyContent: "center",
                   borderRadius: 5,
                   overflow: "hidden",
-                }}
-              >
-                <Image
-                  source={{
-                    uri: item.image,
-                  }}
-                  style={{ width: "100%", height: "100%" }}
-                  blurRadius={5}
-                />
-                <View
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    zIndex: 2,
-                    position: "absolute",
-                  }}
-                ></View>
-                <View
-                  style={{
-                    position: "absolute",
-                    zIndex: 3,
-                    flex: 1,
-                    padding: 10,
-                    flexDirection: "row",
-                  }}
-                >
-                  <Image
-                    source={{
-                      uri: item.image,
-                    }}
-                    style={{ width: 100, height: 160 }}
-                  />
-                  <View style={{ flex: 1, marginLeft: 10 }}>
-                    <Text
-                      style={[
-                        style.h1,
-                        style.whiteText,
-                        { flexShrink: 1, flexWrap: "wrap" },
-                      ]}
+                }}>
+                    <Image
+                      source={{
+                        uri: `https://mangadex.org/covers/${item.id}/${item.cover.attributes.fileName}.256.jpg`,
+                      }}
+                      style={{ width: "100%", height: "100%" }}
+                      blurRadius={5}
+                    />
+                    <View
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        zIndex: 2,
+                        position: "absolute",
+                      }}
+                    ></View>
+                    <View
+                      style={{
+                        position: "absolute",
+                        zIndex: 3,
+                        flex: 1,
+                        padding: 10,
+                        flexDirection: "row",
+                      }}
                     >
-                      {item.title}
-                    </Text>
-                    <Text style={[style.whiteText]}>{item.author}</Text>
-                  </View>
-                </View>
-              </View>
-            )}
-          />
+                      <Image
+                        source={{
+                          uri: `https://mangadex.org/covers/${item.id}/${item.cover.attributes.fileName}.256.jpg`,
+                        }}
+                        style={{ width: 100, height: 160 }}
+                      />
+                      <View style={{ flex: 1, marginLeft: 10 }}>
+                        <Text
+                          style={[
+                            style.h1,
+                            style.whiteText,
+                            { flexShrink: 1, flexWrap: "wrap" },
+                          ]}
+                        >
+                          {item.attributes.title.en ??
+                            item.attributes.title["ja-ro"]}
+                        </Text>
+                        <Text style={[style.whiteText]}>
+                          {item.author.attributes.name}
+                        </Text>
+                      </View>
+                    </View>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <></>
+          )}
         </View>
       </GestureHandlerRootView>
     </>
   );
 });
 
-const LatestSection = memo(({navigation}) => {
+const LatestSection = memo(({ navigation }) => {
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   const manga = useSelector((state) => state.manga.manga);
@@ -322,13 +351,13 @@ const LatestSection = memo(({navigation}) => {
           nestedScrollEnabled={true}
           // navigation={navigation}
         />
-        <ActivityIndicator animating={true}/>
+        <ActivityIndicator animating={true} />
       </SafeAreaView>
     </>
   );
 });
 
-function HomeScreen({navigation}) {
+function HomeScreen({ navigation }) {
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   console.log("render parent");
@@ -362,9 +391,16 @@ function HomeScreen({navigation}) {
         }}
         scrollEventThrottle={400}
       >
-        <SearchSection />
+        {/* <SearchSection /> */}
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("Search");
+          }}
+        >
+          <Searchbar style={style.searchbar} traileringIcon="filter-variant" />
+        </TouchableOpacity>
         <PopularSection />
-        <LatestSection navigation={navigation}/>
+        <LatestSection navigation={navigation} />
       </ScrollView>
     </>
   );

@@ -3,6 +3,18 @@ const bcryptjs = require('bcryptjs')
 const crypto = require('crypto')
 const jwt = require('jsonwebtoken');
 const mongoose = require("mongoose");
+
+const mangaObject = {
+  mangaTitle: String,
+  list: [
+    {
+      chapterId: String,
+    }
+  ],
+  lastChapter: Number,
+  lastRead: Number,
+  lastPage: Number
+}
 const UserName = new Schema({
     firstName: {
         type: String,
@@ -12,28 +24,7 @@ const UserName = new Schema({
     favoritesManga:[{ type: String}],
     readingHistory: [
         {
-          mangaTitle: {
-            type: String,
-            required: true,
-          },
-          mangaId : {
-            type: String,
-            required: true,
-          },
-          lastChapter: {
-            type: Number,
-            required: true,
-          },
-          lastPage: {
-            type: Number,
-            required: true,
-          },
-          lastTimeRead: {
-            type: Number
-          },
-          chapterId: {
-            type: [{ type: String}],
-          },
+          mangaId: mangaObject,
           updatedAt: {
             type: Date,
             default: Date.now(),
@@ -78,6 +69,7 @@ const UserName = new Schema({
         toJSON: { virtuals: true },
         toObject: { virtuals: true },
     })
+
 
 
 UserName.methods.comparePassword = async function (candidatePassword) {

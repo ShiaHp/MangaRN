@@ -1,4 +1,4 @@
-import { useTheme, withTheme } from "react-native-paper";
+import { Button, useTheme, withTheme } from "react-native-paper";
 import React, { useEffect, useRef, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Carousel from "react-native-reanimated-carousel";
@@ -10,9 +10,13 @@ import {
   ScrollView,
   FlatList,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   ToastAndroid,
-  Alert
+  Alert,
+  Modal,
+  Pressable
 } from "react-native";
+import { ImageZoom } from '@likashefqet/react-native-image-zoom';
 import { url } from "../redux/reducer/manga";
 import { Appbar, ActivityIndicator, Badge, Snackbar } from "react-native-paper";
 import { Dimensions, Platform } from "react-native";
@@ -20,13 +24,67 @@ import ExpoFastImage from "expo-fast-image";
 import axios from "axios";
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
+import { Animated } from 'react-native';
+import * as FileSystem from 'expo-file-system';
+import * as Permissions from 'expo-permissions';
+import * as MediaLibrary from 'expo-media-library'
 
+const waitToRetryAgain = (delay) => new Promise((resolve) => {
+  setTimeout(resolve, delay);
+});
 
+const retryRequest = async (
+  image,
+  retries = 3,
+  delay
+) => {
+  for (let i = 0; i <= retries - 1; i++) {
+    try {
+      const response = await fetch(image);
+      return response;
+    } catch (err) {
+      await waitToRetryAgain(delay);
+    }
+  }
+  throw new Error('Max retries exceeded');
+};
 
+const handleDownload = async (src) => {
+  let date = new Date().getTime();
+  let fileUri = FileSystem.documentDirectory + `${date}.jpg`;
+  try {
+      const res = await FileSystem.downloadAsync(src, fileUri)
+      await saveFile(res.uri)
+  } catch (err) {
+      console.log("FS Err: ", err)
+  }
+}
+
+const saveFile = async (fileUri) => {
+  const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
+  if (status === "granted") {
+      try {
+          const asset = await MediaLibrary.createAssetAsync(fileUri);
+          const album = await MediaLibrary.getAlbumAsync('Download');
+          if (album == null) {
+              await MediaLibrary.createAlbumAsync('Download', asset, false);
+          } else {
+              await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+          }
+      } catch (err) {
+          console.log("Save err: ", err)
+      }
+  } else if (status === "denied") {
+      alert("please allow permissions to download")
+  }
+}
 
 const ReadView = ({ route, navigation }) => {
   const { chapterId, title, volume, chapter } = route.params;
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalImage, setModalImage] = useState(null);
   const [pages, setPages] = useState(null);
+  const [hidden, setHidden] = useState(false);
   const [isScrollReadMode, changeIsScrollReadMode] = useState(false);
   const [idx, setidx] = useState(1);
   const theme = useTheme();
@@ -36,6 +94,7 @@ const ReadView = ({ route, navigation }) => {
   const [prevChapter, setPrevChapter] = useState();
   const onToggleSnackBar = () => setSnackbarVisible(!isSnackbarVisible);
   const onDismissSnackBar = () => setSnackbarVisible(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   const temp = useRef(0);
   const carousel = useRef();
   const snackbarChildren = useRef();
@@ -52,24 +111,23 @@ const ReadView = ({ route, navigation }) => {
     setIsLoading(true);
     async function fetchData() {
       return await axios({
-        method: "GET",
         url: `${url}/api/v1/manga/chapter/image/${chapterId}`,
+        method: "GET",
       });
     }
     fetchData()
       .then((res) => {
         var promises = [];
         temp.current = 0;
-        console.log(res.data)
         setNextChapter(res.data.nextChapterItem);
         setPrevChapter(res.data.preChapterItem);
 
         res.data.constructedUrls.forEach((src, index) => {
           promises.push(
-            new Promise((resolve, reject) => {
-              Image.getSize(
-                src,
-                (width, height) => {
+            new Promise(async (resolve, reject) => {
+              try {
+                const response = await fetch(src);
+                 await Image.getSize(response.url, (width, height) => {
                   let id = src.slice(-11, -4);
                   let currentHeight = imageDimensions.width / (width / height);
                   temp.current += currentHeight;
@@ -81,9 +139,28 @@ const ReadView = ({ route, navigation }) => {
                     index,
                     offset: temp.current,
                   });
-                },
-                reject
-              );
+                });
+
+
+              } catch (error) {
+                console.error(`Error fetching ${src}:`, error);
+                const res = await retryRequest(src, 3, 1000).catch((err) => {
+                  return err
+                });
+                await Image.getSize(res.url, (width, height) => {
+                  let id = src.slice(-11, -4);
+                  let currentHeight = imageDimensions.width / (width / height);
+                  temp.current += currentHeight;
+                  resolve({
+                    width,
+                    height: currentHeight,
+                    src,
+                    id,
+                    index,
+                    offset: temp.current,
+                  });
+                });
+              }
             })
           );
         });
@@ -176,11 +253,64 @@ const ReadView = ({ route, navigation }) => {
     onToggleSnackBar();
   };
 
+  // FIX TODO: add animation here
+  // const AnimatedAppbarHeader = ({ hidden, theme, navigation, title, volume, chapter, onChangeMode }) => {
+  //   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  //   useEffect(() => {
+  //     if (!hidden) {
+  //       Animated.timing(fadeAnim, {
+  //         toValue: 1,
+  //         duration: 2500,
+  //         useNativeDriver: true,
+  //       }).start();
+  //     }
+  //   }, [fadeAnim]);
+
+  //   return (
+  //     <Animated.View style={{ opacity: fadeAnim }}>
+  //       <Animated.View style={{ transform: [{ translateY: fadeAnim.interpolate({
+  //           inputRange: [0, 1],
+  //           outputRange: [10, 0],
+  //         })}] }}>
+  //         <Appbar.Header
+  //           style={{
+  //             backgroundColor: theme.colors.background,
+  //             zIndex: 5,
+  //             justifyContent: "space-between",
+  //           }}
+  //         >
+  //           <Appbar.BackAction
+  //             onPress={() => {
+  //               navigation.goBack();
+  //             }}
+  //           />
+  //           <View style={{ flex: 1 }}>
+  //             <Appbar.Content title={title ?? "No Title"} titleStyle={{}} />
+  //             <Appbar.Content
+  //               title={`Vol. ${volume ?? "none"} - Chapter. ${chapter ?? "none"}`}
+  //               titleStyle={{ fontSize: 13, lineHeight: 13 }}
+  //             />
+  //           </View>
+  //           <Appbar.Action icon="book-open" onPress={onChangeMode} />
+  //         </Appbar.Header>
+  //       </Animated.View>
+  //     </Animated.View>
+  //   );
+  // }
+  const toggleHidden = () => {
+    setTimeout(() => {
+      setHidden(!hidden)
+    }, 500 )
+
+  }
+
   return !isLoading ? (
     Platform.OS !== "web" ? (
       <>
         {/* app */}
-        <Appbar.Header
+        {hidden ? null : (
+          <Appbar.Header
           style={{
             backgroundColor: theme.colors.background,
             zIndex: 5,
@@ -201,26 +331,53 @@ const ReadView = ({ route, navigation }) => {
           </View>
           <Appbar.Action icon="book-open" onPress={onChangeMode} />
         </Appbar.Header>
-        {isScrollReadMode ? (
-          <View>
-            <ScrollView onScroll={onScroll} scrollEventThrottle={100}>
-            {pages.map((item, index) => (
-              <ExpoFastImage
-                key={index}
-                cacheKey={item.id}
-                uri={item.src}
-                resizeMode="contain"
-                style={{
-                  width: imageDimensions.width - 10,
-                  height: item.height,
-                  marginBottom: 5,
-                  marginHorizontal: 5,
-                }}
-              />
-            ))}
+)}
 
+        {!isScrollReadMode ? (
+      <><ScrollView onScroll={onScroll} scrollEventThrottle={100}>
+            {pages.map((item, index) => (
+              <View key={index}>
+                <TouchableOpacity onLongPress={() => {
+                  setModalVisible();
+                  setModalImage(item.src)
+                }}>
+                  <ImageZoom
+                    uri={item.src}
+                    resizeMode="contain"
+                    style={{
+                      flex: 1,
+                      width: imageDimensions.width - 10,
+                      height: item.height,
+                    }} />
+                </TouchableOpacity>
+              </View>
+            ))}
           </ScrollView>
-          </View>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible !== null}
+            onRequestClose={() => {
+              Alert.alert('Modal has been closed.');
+              setModalVisible(null);
+            } }
+          >
+              <View style={styles.centeredView}>
+                <View style={styles.modalView}>
+                  <Text style={styles.modalText}>Hello World!</Text>
+                  <Button
+                    style={styles.textStyle}
+                    onPress={() => {
+                      handleDownload(modalImage);
+                      setModalVisible(null);
+                    } }
+                    title="Download" />
+                </View>
+              </View>
+            </Modal></>
+
+
+
 
         ) : (
           <GestureHandlerRootView>
@@ -277,20 +434,23 @@ const ReadView = ({ route, navigation }) => {
             </View>
           </GestureHandlerRootView>
         )}
-     <View style={styles.container}>
+      { hidden ? null :
+      <View style={styles.container}>
       <TouchableOpacity style={styles.iconContainerLeft}>
         <Ionicons name="information-circle" size={24} color="white" />
       </TouchableOpacity>
       <View style={styles.iconContainerMiddle}></View>
       <View style={styles.iconContainerRight}>
         <TouchableOpacity style={styles.icon}>
-        <AntDesign name="caretleft" size={20} color="black"  onPress={() => moveChapter(0)}/>
+          <AntDesign name="caretleft" size={20} color="black" onPress={() => moveChapter(0)} />
         </TouchableOpacity>
         <TouchableOpacity>
-        <AntDesign name="caretright" size={20} color="black" onPress={() => moveChapter(1)} />
+          <AntDesign name="caretright" size={20} color="black" onPress={() => moveChapter(1)} />
         </TouchableOpacity>
       </View>
     </View>
+
+}
       </>
     ) : (
       // webb
@@ -441,6 +601,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     paddingHorizontal: 16,
     paddingVertical: 8,
+
   },
   iconContainerLeft: {
     marginRight: "auto",
@@ -456,6 +617,48 @@ const styles = StyleSheet.create({
   icon: {
     marginHorizontal: 20,
   },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  // fade-in-up' : 'fade-in-down'
 });
 
 export default withTheme(ReadView);

@@ -20,13 +20,16 @@ import {
 } from "react-native-paper";
 import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDetailManga, listChapter, getDetailFirstChapter } from "../redux/reducer/manga";
+import { getDetailManga, listChapter, storeReadList, setReadListChapter,setDetailManga, getDetailFirstChapter } from "../redux/reducer/manga";
 import Icon from "react-native-paper/src/components/Icon";
 import { useNavigation } from "@react-navigation/native";
+import read from '../example.json'
+
 
 const PageRenderer = ({ times }) => {
   const arr = Array(times).fill(null);
   const [active, setActive] = useState(1);
+
   const {id} = useSelector((state)=>state.manga.detailManga)
   const dispatch = useDispatch()
   useEffect(() => {
@@ -91,11 +94,15 @@ const PageRenderer = ({ times }) => {
 
 const ChapterList = () => {
   const theme = useTheme();
+  const {id} = useSelector((state)=>state.manga.detailManga)
   const style = DetailViewStyle(theme);
+  const dispatch = useDispatch();
   const listChapter = useSelector((state) => state.manga.listChapter);
   const navigation = useNavigation()
   const onChapterPress = (chapterId, title, volume, chapter)=>{
-    navigation.navigate('Reader', { chapterId, title, volume, chapter })
+    dispatch(storeReadList(id,chapterId,chapter))
+    dispatch(setReadListChapter(chapterId))
+    navigation.navigate('Reader',{chapterId, title, volume, chapter})
   }
   return listChapter ? (
     <View>
@@ -117,13 +124,13 @@ const ChapterList = () => {
         return (
           <TouchableOpacity onPress={()=>onChapterPress(item.id, item.attributes.title, item.attributes.volume, item.attributes.chapter)} key={item.id}>
             <View
-              style={{
+              style={[{
                 flex: 1,
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
                 marginVertical: 10,
-              }}
+              }, item.hasRead ? {opacity:0.5}:{}]}
             >
               <View>
                 <Text
@@ -134,7 +141,7 @@ const ChapterList = () => {
                   {item.attributes.title?item.attributes.title:'No Title'}
                 </Text>
                 <Text style={[style.whiteText]}>
-                  {item.attributes.updatedAt?.slice(0, 10)} - unknown
+                  {item.attributes.updatedAt?.slice(0, 10)} - {item.trans.attributes.name}
                 </Text>
               </View>
               <IconButton
@@ -157,7 +164,7 @@ const ChapterList = () => {
           marginVertical: 20,
         }}
       >
-        <PageRenderer times={Math.ceil(listChapter.total / 100)} />
+        <PageRenderer times={Math.ceil(listChapter.total / 30)} />
       </View>
     </View>
   ) : (
@@ -166,7 +173,8 @@ const ChapterList = () => {
 };
 
 function DetailView({ navigation, route }) {
-  const { id } = route.params
+  const {id} = route.params
+  // const id = "34f45c13-2b78-4900-8af2-d0bb551101f4"
   const dispatch = useDispatch();
   const detailManga = useSelector((state) => state.manga.detailManga);
   const detailFirstChapter = useSelector((state) => state.manga.detailFirstChapter);
@@ -175,7 +183,10 @@ function DetailView({ navigation, route }) {
   useEffect(() => {
     dispatch(getDetailManga(id));
     dispatch(getDetailFirstChapter(id));
-  }, []);
+    return ()=>{
+      dispatch(setDetailManga(null));
+    }
+  }, [id]);
   const theme = useTheme();
   const style = DetailViewStyle(theme);
 
@@ -326,7 +337,10 @@ function DetailView({ navigation, route }) {
       </ScrollView>
     </View>
   ) : (
-    <ActivityIndicator animating={true} color={theme.colors.primary} />
+    <View style={[style.container, {alignItems:'center',justifyContent:'center', height:'100%'}]}>
+
+      <ActivityIndicator animating={true} color={theme.colors.primary} />
+    </View>
   );
 }
 
