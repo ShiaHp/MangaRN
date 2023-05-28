@@ -5,7 +5,7 @@ import {
   ScrollView,
   Animated,
   Image,
-  TouchableOpacity
+  TouchableOpacity,
 } from "react-native";
 import Markdown from "react-native-markdown-display";
 import { LinearGradient } from "expo-linear-gradient";
@@ -20,18 +20,26 @@ import {
 } from "react-native-paper";
 import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDetailManga, listChapter } from "../redux/reducer/manga";
+import {
+  getDetailManga,
+  listChapter,
+  storeReadList,
+  setReadListChapter,
+  setDetailManga,
+  getDetailFirstChapter,
+} from "../redux/reducer/manga";
 import Icon from "react-native-paper/src/components/Icon";
 import { useNavigation } from "@react-navigation/native";
+import read from "../example.json";
 
 const PageRenderer = ({ times }) => {
   const arr = Array(times).fill(null);
   const [active, setActive] = useState(1);
-  const {id} = useSelector((state)=>state.manga.detailManga)
-  const dispatch = useDispatch()
+  const { id } = useSelector((state) => state.manga.detailManga);
+  const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(listChapter(id, active))
-  },[active])
+    dispatch(listChapter(id, active));
+  }, [active]);
   const theme = useTheme();
   const setPage = (method, page) => {
     switch (method) {
@@ -91,12 +99,18 @@ const PageRenderer = ({ times }) => {
 
 const ChapterList = () => {
   const theme = useTheme();
+  const { id } = useSelector((state) => state.manga.detailManga);
   const style = DetailViewStyle(theme);
+  const dispatch = useDispatch();
   const listChapter = useSelector((state) => state.manga.listChapter);
-  const navigation = useNavigation()
-  const onChapterPress = (chapterId, title, volume, chapter)=>{
-    navigation.navigate('Reader', { chapterId, title, volume, chapter })
-  }
+  console.log("llistChapter", listChapter);
+  const navigation = useNavigation();
+  const onChapterPress = (chapterId, title, volume, chapter) => {
+    console.log({id, chapterId, chapter, title});
+    dispatch(storeReadList(id, chapterId, chapter, title));
+    dispatch(setReadListChapter(chapterId));
+    navigation.navigate("Reader", { chapterId, title, volume, chapter });
+  };
   return listChapter ? (
     <View>
       <View
@@ -115,33 +129,51 @@ const ChapterList = () => {
       <Divider bold />
       {listChapter.data.map((item) => {
         return (
-          <TouchableOpacity onPress={()=>onChapterPress(item.id, item.attributes.title, item.attributes.volume, item.attributes.chapter)} key={item.id}>
+          <TouchableOpacity
+            onPress={() =>
+              onChapterPress(
+                item.id,
+                item.attributes.title,
+                item.attributes.volume,
+                item.attributes.chapter
+              )
+            }
+            key={item.id}
+          >
             <View
-              style={{
-                flex: 1,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginVertical: 10,
-              }}
+              style={[
+                {
+                  flex: 1,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginVertical: 10,
+                },
+                item.hasRead ? { opacity: 0.5 } : {},
+              ]}
             >
               <View>
+                {/* {console.log(item)} */}
                 <Text
                   style={[style.whiteText, { width: 300 }]}
                   numberOfLines={1}
                 >
-                  Vol.{item.attributes.volume} Ch.{item.attributes.chapter} -{" "}
-                  {item.attributes.title?item.attributes.title:'No Title'}
+                  Vol.{item.attributes.volume ?? ""} Ch.
+                  {item.attributes.chapter ?? ""} -{" "}
+                  {item.attributes.title ?? "No Title"}
                 </Text>
                 <Text style={[style.whiteText]}>
-                  {item.attributes.updatedAt?.slice(0, 10)} - unknown
+                  {item.attributes.updatedAt?.slice(0, 10)} -{" "}
+                  {item.trans?.attributes.name??"Unknown"}
                 </Text>
               </View>
               <IconButton
                 icon={"download-circle-outline"}
                 size={25}
                 color="white"
-                onPress={()=>{console.log('icon');}}
+                onPress={() => {
+                  console.log("icon");
+                }}
               />
             </View>
             <Divider bold />
@@ -157,7 +189,7 @@ const ChapterList = () => {
           marginVertical: 20,
         }}
       >
-        <PageRenderer times={Math.ceil(listChapter.total / 100)} />
+        <PageRenderer times={Math.ceil(listChapter.total / 30)} />
       </View>
     </View>
   ) : (
@@ -166,16 +198,36 @@ const ChapterList = () => {
 };
 
 function DetailView({ navigation, route }) {
-  const {id} = route.params
+  const { id } = route.params;
+  // const id = "34f45c13-2b78-4900-8af2-d0bb551101f4"
   const dispatch = useDispatch();
-  const detailManga = useSelector((state) => state.manga.detailManga);
+  const { detailManga, detailFirstChapter } = useSelector(
+    (state) => state.manga
+  );
+  // const [page, setPage] = useState(1);
   // const id = "34f45c13-2b78-4900-8af2-d0bb551101f4"
   useEffect(() => {
     dispatch(getDetailManga(id));
-  }, []);
+    dispatch(getDetailFirstChapter(id));
+    return () => {
+      dispatch(setDetailManga(null));
+    };
+  }, [id]);
   const theme = useTheme();
   const style = DetailViewStyle(theme);
 
+  const startReading = () => {
+    let chapterId,
+      title,
+      volume,
+      chapter = null;
+    chapterId = detailFirstChapter.startChapterItem.id;
+    title = detailFirstChapter.startChapterItem.attributes.title;
+    volume = detailFirstChapter.startChapterItem.attributes.volume;
+    chapter = detailFirstChapter.startChapterItem.attributes.chapter;
+
+    navigation.navigate("Reader", { chapterId, title, volume, chapter });
+  };
   return detailManga ? (
     <View style={style.container}>
       <Animated.View>
@@ -278,7 +330,7 @@ function DetailView({ navigation, route }) {
               icon="play"
               mode="contained"
               style={{ marginTop: 10 }}
-              onPress={() => {}}
+              // onPress={() => startReading()}
             >
               Start Reading
             </Button>
@@ -313,7 +365,14 @@ function DetailView({ navigation, route }) {
       </ScrollView>
     </View>
   ) : (
-    <ActivityIndicator animating={true} color={theme.colors.primary} />
+    <View
+      style={[
+        style.container,
+        { alignItems: "center", justifyContent: "center", height: "100%" },
+      ]}
+    >
+      <ActivityIndicator animating={true} color={theme.colors.primary} />
+    </View>
   );
 }
 

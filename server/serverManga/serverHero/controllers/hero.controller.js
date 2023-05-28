@@ -22,17 +22,79 @@ module.exports = {
         }
       });
       let latestChapter = 0;
+      let startChapter = 0;
+      let startChapterItem = null;
+
       for (let item of listChapter.data.data) {
-        if (Number(item.attributes.chapter) > Number(latestChapter)) {
-          latestChapter = item.attributes.chapter
+        const currentChapter = Number(item.attributes.chapter);
+
+        if (currentChapter > latestChapter) {
+          latestChapter = currentChapter;
+        }
+
+        if (startChapter === 0 || currentChapter < startChapter) {
+          startChapter = currentChapter;
+          startChapterItem = item;
         }
       }
+
+
+
 
       res.status(200).json({
         message: 'Success',
         data: {
           ...listChapter.data,
           latestChapter: latestChapter,
+          startChapter: startChapter,
+          startChapterId: startChapterItem,
+        }
+
+      })
+    } catch (e) {
+      res.status(404).json({
+        message: 'Error',
+      })
+    }
+  },
+  startChapter: async (req, res) => {
+    try {
+      // https://api.mangadex.org/manga/:idManga/feed
+      const mangaId = req.params.mangaId;
+      const listChapter = await axios({
+        method: 'get',
+        url: `${baseUrl}manga/${mangaId}/feed`,
+       params: {
+        translatedLanguage: ['en'],
+       }
+
+      });
+      let latestChapter = 0;
+      let startChapter = 0;
+      let startChapterItem = null;
+
+      for (let item of listChapter.data.data) {
+        const currentChapter = Number(item.attributes.chapter);
+
+        if (currentChapter > latestChapter) {
+          latestChapter = currentChapter;
+        }
+
+        if (startChapter === 0 || currentChapter < startChapter) {
+          startChapter = currentChapter;
+          startChapterItem = item;
+        }
+      }
+
+
+
+
+      res.status(200).json({
+        message: 'Success',
+        data: {
+          latestChapter: latestChapter,
+          startChapter: startChapter,
+          startChapterItem: startChapterItem,
         }
 
       })
@@ -70,19 +132,52 @@ module.exports = {
   listImageChapter: async (req, res) => {
     try {
       const idChapter = req.params.chapterId
-
+      let mangaId;
       const data = await axios({
         method: 'get',
         url: `${baseUrl}at-home/server/${idChapter}`
+      });
+
+      const preAndCurrentChapter = await axios({
+        method: 'get',
+        url: `${baseUrl}chapter/${idChapter}`
       })
+      for (let item of preAndCurrentChapter.data.data.relationships) {
+        if (item.type === "manga") {
+          mangaId = item.id
+        }
+      }
+      const listChapter = await axios({
+        method: 'get',
+        url: `${baseUrl}manga/${mangaId}/feed`,
+        params: {
+          translatedLanguage: ['en'],
+        }
+      });
+      let nextChapterItem = null;
+      let preChapterItem = null;
+
+      for (let item of listChapter.data.data) {
+        const currentChapter = Number(item.attributes.chapter);
+
+        if (currentChapter === Number(preAndCurrentChapter.data.data.attributes.chapter) - 1) {
+          preChapterItem = item;
+        }
+
+        if (currentChapter === Number(preAndCurrentChapter.data.data.attributes.chapter) + 1) {
+          nextChapterItem = item;
+        }
+      }
 
       const hash = data.data.chapter.hash
       const images = data.data.chapter.data
-
+      console.log(nextChapterItem)
       const constructedUrls = images.map((image) => `${baseUploadUrl}data/${hash}/${image}`)
       res.status(200).json({
-        message: 's',
-        constructedUrls: constructedUrls
+        message: 'Success',
+        constructedUrls: constructedUrls,
+        nextChapterItem: nextChapterItem,
+        preChapterItem: preChapterItem,
       })
     } catch (e) {
       res.status(404).json({ e: e.message })

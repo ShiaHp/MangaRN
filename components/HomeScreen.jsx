@@ -7,8 +7,9 @@ import {
   Dimensions,
   Image,
   FlatList,
+  TouchableOpacity,
 } from "react-native";
-import Styles from "./HomeScreenStyle";
+import { documentDirectory } from "expo-file-system";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   useTheme,
@@ -20,7 +21,7 @@ import {
   Button,
 } from "react-native-paper";
 import Carousel from "react-native-reanimated-carousel";
-import {ActivityIndicator} from 'react-native-paper'
+import { ActivityIndicator } from "react-native-paper";
 import { setTags, getLatestMangas } from "../redux/reducer/manga";
 import { useSelector, useDispatch } from "react-redux";
 import tag from "../tag.json";
@@ -28,197 +29,37 @@ import example from "../example.json";
 import { useState, memo, useEffect, useMemo, useCallback } from "react";
 import { useRef } from "react";
 import CardItem from "./CardItem";
-const MultipleSelectChip = memo(
-  ({ name, list, selectChips, isApplyPressed, onPassProps }) => {
-    const theme = useTheme();
-    const style = HomeScreenStyles(theme);
-    const [selectedChips, setSelectedChips] = useState(selectChips);
-    const firstUpdate = useRef(true);
-    console.log("render chhild");
-    useEffect(() => {
-      if (firstUpdate.current) {
-        firstUpdate.current = false;
-        return;
-      }
-      onPassProps(name, selectedChips);
-    }, [isApplyPressed]);
-
-    const toggleSelectedChip = (chip) => {
-      setSelectedChips((prevState) => {
-        if (prevState.includes(chip)) {
-          return prevState.filter((item) => item !== chip);
-        }
-        return [...prevState, chip];
-      });
-    };
-    return list.map((element) => (
-      <Chip
-        style={[
-          style.chip,
-          selectedChips &&
-            selectedChips.includes(element) &&
-            style.selectedChip,
-        ]}
-        key={element}
-        textStyle={[
-          style.chipText,
-          selectedChips &&
-            selectedChips.includes(element) &&
-            style.selectedChipText,
-        ]}
-        onPress={() => toggleSelectedChip(element)}
-      >
-        {element}
-      </Chip>
-    ));
-  }
-);
-
-const SearchSection = memo(() => {
-  console.log("render searchh");
-  const theme = useTheme();
-  const style = HomeScreenStyles(theme);
-  const [searchModalVisible, setSearchModalVisible] = useState(false);
-  const [generalSelected, setGeneralSelected] = useState({
-    Order: [],
-    Status: [],
-    Gerne: [],
-    Theme: [],
-    Format: [],
-  });
-  const count = useRef(0);
-  const onApplyPress = () => {
-    ++count.current;
-    setSearchModalVisible(false);
-  };
-
-  const onPassProps = (name, selectedChips) => {
-    setGeneralSelected((prev) => {
-      return {
-        ...prev,
-        [name]: selectedChips,
-      };
-    });
-  };
-
-  const searchChips = useMemo(() => {
-    const chips = [];
-    Object.keys(generalSelected).forEach((element) => {
-      generalSelected[element] &&
-        generalSelected[element].map((el) => {
-          chips.push(el);
-        });
-    });
-    return chips;
-  }, [generalSelected]);
-  return (
-    <>
-      <Searchbar
-        style={style.searchbar}
-        traileringIcon="filter-variant"
-        onTraileringIconPress={() => {
-          setSearchModalVisible(true);
-        }}
-      />
-      <Portal>
-        <Modal
-          contentContainerStyle={style.modalContainer}
-          visible={searchModalVisible}
-          onDismiss={() => {
-            setSearchModalVisible(false);
-          }}
-        >
-          <Text style={[style.h1, style.whiteText]}>Filter</Text>
-          <ScrollView style={{ marginBottom: 10 }}>
-            <Text style={[style.whiteText, style.h2]}>Sort By</Text>
-            <View style={style.chipContainer}>
-              <MultipleSelectChip
-                name="Order"
-                list={tag.sortBy}
-                // onSelectChips={onSelectChips}
-                selectChips={generalSelected["Order"]}
-                isApplyPressed={count.current}
-                onPassProps={onPassProps}
-              />
-            </View>
-            <Text style={[style.whiteText, style.h2]}>Status</Text>
-            <View style={style.chipContainer}>
-              <MultipleSelectChip
-                name="Status"
-                list={tag.status}
-                // onSelectChips={onSelectChips}
-                selectChips={generalSelected["Status"]}
-                isApplyPressed={count.current}
-                onPassProps={onPassProps}
-              />
-            </View>
-            <Text style={[style.whiteText, style.h2]}>Gerne</Text>
-            <View style={style.chipContainer}>
-              <MultipleSelectChip
-                name="Gerne"
-                list={tag.genres}
-                // onSelectChips={onSelectChips}
-                selectChips={generalSelected["Gerne"]}
-                isApplyPressed={count.current}
-                onPassProps={onPassProps}
-              />
-            </View>
-            <Text style={[style.whiteText, style.h2]}>Theme</Text>
-            <View style={style.chipContainer}>
-              <MultipleSelectChip
-                name="Theme"
-                list={tag.themes}
-                // onSelectChips={onSelectChips}
-                selectChips={generalSelected["Theme"]}
-                isApplyPressed={count.current}
-                onPassProps={onPassProps}
-              />
-            </View>
-            <Text style={[style.whiteText, style.h2]}>Format</Text>
-            <View style={style.chipContainer}>
-              <MultipleSelectChip
-                name="Format"
-                list={tag.formats}
-                // onSelectChips={onSelectChips}
-                selectChips={generalSelected["Format"]}
-                isApplyPressed={count.current}
-                onPassProps={onPassProps}
-              />
-            </View>
-            <View></View>
-          </ScrollView>
-          <Button
-            mode="contained"
-            style={style.applyBtn}
-            onPress={() => onApplyPress()}
-          >
-            Apply
-          </Button>
-        </Modal>
-      </Portal>
-      <View style={style.chipContainer}>
-        {searchChips.map((el) => {
-          return (
-            <Chip
-              style={[style.chip, style.selectedChip]}
-              key={el}
-              textStyle={[style.chipText, style.selectedChipText]}
-            >
-              {el}
-            </Chip>
-          );
-        })}
-      </View>
-    </>
-  );
-});
+import axios from "axios";
+import { useNavigation } from "@react-navigation/native";
 
 const PopularSection = memo(() => {
-  const carousel = useRef()
-  console.log("render popular");
+  const navigation = useNavigation()
+  const carousel = useRef();
+  // console.log("render popular");
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   const width = Dimensions.get("window").width;
+  const [popularList, setPopularList] = useState();
+  useEffect(() => {
+    axios({
+      url: `https://api.mangadex.org/manga?includes[]=cover_art&includes[]=artist&includes[]=author&order[followedCount]=desc&contentRating[]=safe&hasAvailableChapters=true`,
+      method: "GET",
+    }).then(({ data }) => {
+      let temp = data.data;
+      let temp1 = temp.forEach((element, index) => {
+        let cover = element.relationships.filter(
+          (item) => item.type === "cover_art"
+        )[0];
+        let author = element.relationships.filter(
+          (item) => item.type === "author"
+        )[0];
+        temp[index].cover = cover;
+        temp[index].author = author;
+      });
+      // console.log(temp);
+      setPopularList(temp);
+    });
+  }, []);
 
   return (
     <>
@@ -227,80 +68,84 @@ const PopularSection = memo(() => {
       </Text>
       <GestureHandlerRootView>
         <View style={{ flex: 1 }}>
-          <Carousel
-
-            loop
-            // autoPlay
-            autoPlayInterval={2000}
-            width={width - 20}
-            height={width / 2}
-            data={example.manga}
-            scrollAnimationDuration={1500}
-            ref={carousel}
-            renderItem={({ index, item }) => (
-              <View
-                style={{
+          {popularList ? (
+            <Carousel
+              loop
+              autoPlay
+              autoPlayInterval={2000}
+              width={width - 20}
+              height={width / 2}
+              data={popularList}
+              scrollAnimationDuration={1500}
+              ref={carousel}
+              renderItem={({ index, item }) => (
+                <TouchableOpacity onPress={()=>navigation.navigate('Detail',{id:item.id})} style={{
                   flex: 1,
                   borderWidth: 1,
                   justifyContent: "center",
                   borderRadius: 5,
                   overflow: "hidden",
-                }}
-              >
-                <Image
-                  source={{
-                    uri: item.image,
-                  }}
-                  style={{ width: "100%", height: "100%" }}
-                  blurRadius={5}
-                />
-                <View
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "rgba(0,0,0,0.5)",
-                    zIndex: 2,
-                    position: "absolute",
-                  }}
-                ></View>
-                <View
-                  style={{
-                    position: "absolute",
-                    zIndex: 3,
-                    flex: 1,
-                    padding: 10,
-                    flexDirection: "row",
-                  }}
-                >
-                  <Image
-                    source={{
-                      uri: item.image,
-                    }}
-                    style={{ width: 100, height: 160 }}
-                  />
-                  <View style={{ flex: 1, marginLeft: 10 }}>
-                    <Text
-                      style={[
-                        style.h1,
-                        style.whiteText,
-                        { flexShrink: 1, flexWrap: "wrap" },
-                      ]}
+                }}>
+                    <Image
+                      source={{
+                        uri: `https://mangadex.org/covers/${item.id}/${item.cover.attributes.fileName}.256.jpg`,
+                      }}
+                      style={{ width: "100%", height: "100%" }}
+                      blurRadius={5}
+                    />
+                    <View
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "rgba(0,0,0,0.5)",
+                        zIndex: 2,
+                        position: "absolute",
+                      }}
+                    ></View>
+                    <View
+                      style={{
+                        position: "absolute",
+                        zIndex: 3,
+                        flex: 1,
+                        padding: 10,
+                        flexDirection: "row",
+                      }}
                     >
-                      {item.title}
-                    </Text>
-                    <Text style={[style.whiteText]}>{item.author}</Text>
-                  </View>
-                </View>
-              </View>
-            )}
-          />
+                      <Image
+                        source={{
+                          uri: `https://mangadex.org/covers/${item.id}/${item.cover.attributes.fileName}.256.jpg`,
+                        }}
+                        style={{ width: 100, height: 160 }}
+                      />
+                      <View style={{ flex: 1, marginLeft: 10 }}>
+                        <Text
+                          style={[
+                            style.h1,
+                            style.whiteText,
+                            { flexShrink: 1, flexWrap: "wrap" },
+                          ]}
+                        >
+                          {item.attributes.title.en ??
+                            item.attributes.title["ja-ro"]}
+                        </Text>
+                        <Text style={[style.whiteText]}>
+                          {item.author.attributes.name}
+                        </Text>
+                      </View>
+                    </View>
+                </TouchableOpacity>
+              )}
+            />
+          ) : (
+            <></>
+          )}
         </View>
       </GestureHandlerRootView>
     </>
   );
 });
 
-const LatestSection = memo(({navigation}) => {
+const LatestSection = memo(({ navigation }) => {
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   const manga = useSelector((state) => state.manga.manga);
@@ -322,19 +167,19 @@ const LatestSection = memo(({navigation}) => {
           nestedScrollEnabled={true}
           // navigation={navigation}
         />
-        <ActivityIndicator animating={true}/>
+        <ActivityIndicator animating={true} />
       </SafeAreaView>
     </>
   );
 });
 
-function HomeScreen({navigation}) {
+function HomeScreen({ navigation }) {
   const theme = useTheme();
   const style = HomeScreenStyles(theme);
   console.log("render parent");
   const dispatch = useDispatch();
   const [page, increasePage] = useState(0);
-
+  // console.log(documentDirectory);
   useEffect(() => {
     dispatch(getLatestMangas(page));
   }, [page]);
@@ -362,9 +207,16 @@ function HomeScreen({navigation}) {
         }}
         scrollEventThrottle={400}
       >
-        <SearchSection />
+        {/* <SearchSection /> */}
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("Search");
+          }}
+        >
+          <Searchbar style={style.searchbar} traileringIcon="filter-variant" />
+        </TouchableOpacity>
         <PopularSection />
-        <LatestSection navigation={navigation}/>
+        <LatestSection navigation={navigation} />
       </ScrollView>
     </>
   );

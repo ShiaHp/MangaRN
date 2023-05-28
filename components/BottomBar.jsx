@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from "react";
+import { View, StyleSheet } from "react-native";
 import { CommonActions } from "@react-navigation/native";
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Text, BottomNavigation } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import HomeScreen from './HomeScreen';
-import DiscoveryScreen from './DiscoveryScreen';
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Text, BottomNavigation } from "react-native-paper";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import HomeScreen from "./HomeScreen";
+import { HistoryView } from "../views";
 const Tab = createBottomTabNavigator();
 
 export default function BottomBar() {
@@ -16,11 +16,11 @@ export default function BottomBar() {
       }}
       tabBar={({ navigation, state, descriptors, insets }) => (
         <BottomNavigation.Bar
-          navigationState = {state}
-         safeAreaInsets = {insets}
+          navigationState={state}
+          safeAreaInsets={insets}
           onTabPress={({ route, preventDefault }) => {
             const event = navigation.emit({
-              type: 'tabPress',
+              type: "tabPress",
               target: route.key,
               canPreventDefault: true,
             });
@@ -28,7 +28,7 @@ export default function BottomBar() {
             if (event.defaultPrevented) {
               preventDefault();
             } else {
-             navigation.dispatch({
+              navigation.dispatch({
                 ...CommonActions.navigate(route.name, route.params),
                 target: state.key,
               });
@@ -57,15 +57,26 @@ export default function BottomBar() {
       )}
     >
       <Tab.Screen
+        name="History"
+        component={HistoryView}
+        options={{
+          tabBarLabel: "History",
+          tabBarIcon: ({ color, size }) => {
+            return <Icon name="history" size={size} color={color} />;
+          },
+        }}
+      />
+      <Tab.Screen
         name="Homes"
         component={HomeScreen}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: "Homes",
           tabBarIcon: ({ color, size }) => {
             return <Icon name="home" size={size} color={color} />;
           },
         }}
       />
+
       <Tab.Screen
         name="Discovery"
         component={DiscoveryScreen}
@@ -80,7 +91,7 @@ export default function BottomBar() {
         name="Saved"
         component={SavedScreen}
         options={{
-          tabBarLabel: 'Saved',
+          tabBarLabel: "Settings",
           tabBarIcon: ({ color, size }) => {
             return <Icon name="bookmark" size={size} color={color} />;
           },
@@ -100,8 +111,6 @@ export default function BottomBar() {
   );
 }
 
-
-
 function SettingsScreen() {
   return (
     <View style={styles.container}>
@@ -113,7 +122,7 @@ function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

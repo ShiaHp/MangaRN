@@ -28,6 +28,12 @@ const UserName = new Schema({
             type: Number,
             required: true,
           },
+          lastTimeRead: {
+            type: Number
+          },
+          chapterId: {
+            type: [{ type: String}],
+          },
           updatedAt: {
             type: Date,
             default: Date.now(),

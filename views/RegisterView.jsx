@@ -3,18 +3,22 @@ import React, { useState } from "react";
 import { withTheme, TextInput, Button } from "react-native-paper";
 import Style from "./Style";
 import axios from "axios";
-const register = async (username, password) => {
-    await axios.post("http://localhost:3033/api/v1/users/register", {
-        email: username,
-        password: password,
-    });
-};
+import { register } from "../redux/reducer/user";
+import { useDispatch } from "react-redux";
 // FIX TODO: STORE INFORMATION USER TO REDUX
 
 function RegisterView({ navigation }) {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const dispatch = useDispatch()
+    const [username, setUsername] = useState('test7@123.com');
+    const [password, setPassword] = useState('123456');
+    const [repPassword, setRepPassword] = useState('123456')
     const style = Style()
+
+    const onRegisterPressed = ()=>{
+        console.log({username,password,repPassword});
+        if(password === repPassword) dispatch(register({email : username, password : password}))
+    }
+
     return (
         <View style={style.flexContainer}>
             <Text style={style.logoText}>KomicBook</Text>
@@ -24,6 +28,7 @@ function RegisterView({ navigation }) {
                     style={style.input}
                     mode='outlined'
                     placeholder='Your username'
+                    value={username}
                     left={<TextInput.Icon icon='account' />}
                     onChangeText={text => setUsername(text)}
                 ></TextInput>
@@ -31,6 +36,7 @@ function RegisterView({ navigation }) {
                     style={style.input}
                     mode='outlined'
                     secureTextEntry={true}
+                    value={password}
                     placeholder='Your password'
                     left={<TextInput.Icon icon='lock' />}
                     onChangeText={text => setPassword(text)}
@@ -40,10 +46,12 @@ function RegisterView({ navigation }) {
                     mode='outlined'
                     secureTextEntry={true}
                     placeholder='Retype your password'
+                    value={repPassword}
                     left={<TextInput.Icon icon='lock' />}
+                    onChangeText={text => setRepPassword(text)}
                 ></TextInput>
                 {/* <Text style={style.forgotText} >Forgot your password?</Text> */}
-                <Button mode='contained' style={style.button} onPress={() => register(username, password)}>
+                <Button mode='contained' style={style.button} onPress={onRegisterPressed}>
                     Register
                 </Button>
                 <Button

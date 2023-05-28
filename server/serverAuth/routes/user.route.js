@@ -14,7 +14,7 @@ router.get('/reading-history/:userId', async (req, res) => {
     res.json(user.readingHistory);
 });
 router.put('/reading-history/:userId', async (req, res) => {
-    const { mangaTitle, mangaId, lastChapter, lastPage } = req.body;
+    const { mangaTitle, mangaId, lastChapter, lastPage, lastTimeRead, chapterId } = req.body;
     const user = await User.findByIdAndUpdate(
         req.params.userId,
         {
@@ -24,6 +24,8 @@ router.put('/reading-history/:userId', async (req, res) => {
                     lastChapter,
                     lastPage,
                     mangaId,
+                    lastTimeRead,
+                    chapterId,
                 },
             },
         },
@@ -46,7 +48,6 @@ router.patch('/reading-history/:userId', async(req,res) => {
                     },
                 },
             },
-            { new: true },
         );
         res.status(200).json({
             message: 'Success'
@@ -54,7 +55,7 @@ router.patch('/reading-history/:userId', async(req,res) => {
     }catch(err) {
         res.status(404).json({ message: err.message});
     }
-})
+});
 router.get('/favorites/:userId', async (req, res) => {
     try {
         const user = await User.findById(req.params.userId);
@@ -65,7 +66,7 @@ router.get('/favorites/:userId', async (req, res) => {
     } catch (e) {
         res.status(404).send(e.message)
     }
-})
+});
 router.put('/favorites/:userId', async (req, res) => {
     try {
         const { newMangaId } = req.body
@@ -77,8 +78,8 @@ router.put('/favorites/:userId', async (req, res) => {
         // check if id manga is already in the list, if not add it to, or remove it
         if (user.favoritesManga.includes(newMangaId)) {
             const index = user.favoritesManga.indexOf(newMangaId);
-            if (index > -1) { 
-                user.favoritesManga.splice(index, 1); 
+            if (index > -1) {
+                user.favoritesManga.splice(index, 1);
             }
         } else {
             user.favoritesManga.push(newMangaId);
@@ -89,5 +90,5 @@ router.put('/favorites/:userId', async (req, res) => {
     } catch (e) {
         res.status(404).send(e.message)
     }
-})
+});
 module.exports = router;
