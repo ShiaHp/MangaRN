@@ -1,175 +1,86 @@
-import {
-    View,
-    Text,
-    ScrollView,
-    StyleSheet,
-    FlatList,
-    SafeAreaView,
-} from "react-native";
-import Styles from "./HomeScreenStyle";
-import {
-    useTheme,
-    Searchbar,
-    Portal,
-    Modal,
-    withTheme,
-    Chip,
-    Button,
-} from "react-native-paper";
-import { setTags } from "../redux/reducer/manga";
+import { View, SafeAreaView, ScrollView, StyleSheet, Text, FlatList } from "react-native";
+import { useTheme, withTheme, Chip, ActivityIndicator } from "react-native-paper";
+import { getPopularMangas, getRecommendedMangas } from "../redux/reducer/manga";
 import { useSelector, useDispatch } from "react-redux";
 import tag from "../tag.json";
 import { useState, memo, useEffect, useMemo, useCallback } from "react";
 
 function DiscoveryScreen() {
-    const [searchModalVisible, setSearchModalVisible] = useState(false);
-    const manga = useSelector((state) => state.manga);
+    // const manga = useSelector((state) => state.manga.manga);
     const theme = useTheme();
     const style = HomeScreenStyles(theme);
-    const [chipVisible, setChipVisible] = useState(false);
-    const tags = manga.tag;
-    const onApplyPress = () => {
-        // console.log(selectedChips);
-        setChipVisible((prev) => {
-            return !prev;
-        });
-    };
+    // const dispatch = useDispatch();
+    // const [page, increasePage] = useState(0);
+    // const keyExtractor = useCallback((item) => item.id, []);
     return (
         <ScrollView style={style.container}>
-            <Searchbar
-                style={style.searchbar}
-                traileringIcon="filter-variant"
-                onTraileringIconPress={() => setSearchModalVisible(true)}
-            />
-            <Portal>
-                <Modal
-                    contentContainerStyle={style.modalContainer}
-                    visible={searchModalVisible}
-                    onDismiss={() => setSearchModalVisible(false)}
-                >
-                    <Text style={[style.h1, style.whiteText]}>Filter</Text>
-                    <ScrollView style={{ marginBottom: 10 }}>
-                        <Text style={[style.whiteText, style.h2]}>Sort By</Text>
-                        <View style={style.chipContainer}>
-                            <MultipleSelectChip
-                                name="Order"
-                                list={tag.sortBy}
-                            />
-                        </View>
-                        <Text style={[style.whiteText, style.h2]}>Status</Text>
-                        <View style={style.chipContainer}>
-                            <MultipleSelectChip
-                                name="Status"
-                                list={tag.status}
-                            />
-                        </View>
-                        <Text style={[style.whiteText, style.h2]}>Gerne</Text>
-                        <View style={style.chipContainer}>
-                            <MultipleSelectChip
-                                name="Gerne"
-                                list={tag.genres}
-                            />
-                        </View>
-                        <Text style={[style.whiteText, style.h2]}>Theme</Text>
-                        <View style={style.chipContainer}>
-                            <MultipleSelectChip
-                                name="Theme"
-                                list={tag.themes}
-                            />
-                        </View>
-                        <Text style={[style.whiteText, style.h2]}>Format</Text>
-                        <View style={style.chipContainer}>
-                            <MultipleSelectChip
-                                name="Format"
-                                list={tag.formats}
-                            />
-                        </View>
-                        <View></View>
-                    </ScrollView>
-                    <Button
-                        mode="contained"
-                        style={style.applyBtn}
-                        onPress={() => onApplyPress()}
-                    >
-                        Apply
-                    </Button>
-                </Modal>
-            </Portal>
-
-            <View style={style.horizontalListContainer}>
-                <ScrollView horizontal={true}>
-                    <FlatList
-                        data={horizontalData1}
-                        renderItem={renderItem}
-                        keyExtractor={keyExtractor}
-                        horizontal={true}
-                    />
-                </ScrollView>
-                <ScrollView horizontal={true}>
-                    <FlatList
-                        data={horizontalData2}
-                        renderItem={renderItem}
-                        keyExtractor={keyExtractor}
-                        horizontal={true}
-                    />
-                </ScrollView>
-            </View>
-            <FlatList
-                data={data}
-                renderItem={renderItem}
-                keyExtractor={keyExtractor}
-            />
+            <PopularSection />
+            <RecommendSection />
         </ScrollView>
     );
 }
 
-const MultipleSelectChip = memo(({ name, list }) => {
+function PopularSection() {
+    const manga = useSelector((state) => state.manga.manga);
     const theme = useTheme();
     const style = HomeScreenStyles(theme);
-    const [selectedChips, setSelectedChips] = useState([]);
+    const keyExtractor = useCallback((item) => item.id, []);
     const dispatch = useDispatch();
-    console.log("render");
-
-    const manga = useSelector((state) => state.manga);
+    const [page, increasePage] = useState(0);
     useEffect(() => {
-        let object = {
-            ...manga.tag,
-            [name]: selectedChips,
-        };
-        dispatch(setTags(object));
-        console.log(manga.tag);
-    }, [selectedChips]);
-    const toggleSelectedChip = useCallback(
-        (chip) => {
-            // console.log(chip);
-            setSelectedChips((prevState) => {
-                if (prevState.includes(chip)) {
-                    return prevState.filter((item) => item !== chip);
-                }
-                return [...prevState, chip];
-            });
-        },
-        [setSelectedChips]
+        dispatch(getPopularMangas(page));
+    }, [page]);
+    return (
+        <>
+            <Text style={[style.h1, style.whiteText, { marginVertical: 10 }]}>
+                Popular
+            </Text>
+            <SafeAreaView style={{ flex: 1 }}>
+                <ActivityIndicator animating={true} />
+                <FlatList
+                    horizontal={true}
+                    removeClippedSubviews={true}
+                    data={manga ? manga : []}
+                    keyExtractor={keyExtractor}
+                    renderItem={({ item }) => <CardItem item={item} />}
+                    initialNumToRender={5}
+                    nestedScrollEnabled={true}
+                    scrollEventThrottle={400}
+                />
+            </SafeAreaView>
+        </>
     );
-    return useMemo(() => {
-        return list.map((element) => (
-            <Chip
-                style={[
-                    style.chip,
-                    selectedChips.includes(element) && style.selectedChip,
-                ]}
-                key={element}
-                textStyle={[
-                    style.chipText,
-                    selectedChips.includes(element) && style.selectedChipText,
-                ]}
-                onPress={() => toggleSelectedChip(element)}
-            >
-                {element}
-            </Chip>
-        ));
-    }, [list, selectedChips]);
-});
+}
+function RecommendSection() {
+    const manga = useSelector((state) => state.manga.manga);
+    const theme = useTheme();
+    const style = HomeScreenStyles(theme);
+    const keyExtractor = useCallback((item) => item.id, []);
+    const dispatch = useDispatch();
+    const [page, increasePage] = useState(0);
+    useEffect(() => {
+        dispatch(getRecommendedMangas(page));
+    }, [page]);
+    return (
+        <>
+            <Text style={[style.h1, style.whiteText, { marginVertical: 10 }]}>
+                Recommended for You
+            </Text>
+            <SafeAreaView style={{ flex: 1 }}>
+                <ActivityIndicator animating={true} />
+                <FlatList
+                    horizontal={true}
+                    removeClippedSubviews={true}
+                    data={manga ? manga : []}
+                    keyExtractor={keyExtractor}
+                    renderItem={({ item }) => <CardItem item={item} />}
+                    initialNumToRender={5}
+                    nestedScrollEnabled={true}
+                />
+            </SafeAreaView>
+        </>
+    );
+}
 
 const HomeScreenStyles = (theme) =>
     StyleSheet.create({
