@@ -3,8 +3,8 @@ import axios from "axios";
 import json from '../../example.json'
 import { storeData } from "../../features/asyncStorage";
 import { getData } from "../../features/asyncStorage";
-import {urlAuth} from './user'
-export const urlManga = 'http://192.168.1.10:3032'
+import { urlAuth } from './user'
+export const urlManga = 'http://192.168.1.5:3032'
 // export const urlManga = 'http://localhost:3032'
 // export const urlManga = 'http://192.168.23.48:3032'
 
@@ -89,20 +89,20 @@ export const { setManga, setDetailManga, setListChapter, setReadList, setReadLis
 export const storeReadList = (mangaId, chapterId, chapter, title) => (dispatch, getState) => {
     const state = getState();
     axios({
-        method : 'PUT',
-        url : `${urlAuth}api/v1/users/reading-history/${state.user.value.id}`,
-        data :{
-            mangaTitle : title, 
-            mangaId, 
-            lastChapter : chapter,
-            lastPage : 1,
-            lastTimeRead : Date.now(),
+        method: 'PUT',
+        url: `${urlAuth}api/v1/users/reading-history/${state.user.value.id}`,
+        data: {
+            mangaTitle: title,
+            mangaId,
+            lastChapter: chapter,
+            lastPage: 1,
+            lastTimeRead: Date.now(),
             chapterId
         }
     })
-    .then(({data})=>{
-        console.log(data);
-    })
+        .then(({ data }) => {
+            console.log(data);
+        })
     let readList = [...state.manga.readList]; // Create a shallow copy of the readList object
     let mangaIdx = readList.findIndex((item) => item.mangaId === mangaId)
     if (mangaIdx !== -1) {
@@ -110,7 +110,7 @@ export const storeReadList = (mangaId, chapterId, chapter, title) => (dispatch, 
             ...readList[mangaIdx],
             chapterId: [...readList[mangaIdx].chapterId, chapterId],
             lastChapter: chapter,
-            mangaTitle : title,
+            mangaTitle: title,
             lastTimeRead: Date.now(),
         };
     } else {
@@ -137,13 +137,29 @@ export const getReadListFromStore = () => async (dispatch, getState) => {
     if (sData) {
         let result = fetch.data.concat(sData)
         dispatch(setReadList(result))
-    }else{
+    } else {
         dispatch(setReadList(fetch.data))
     }
 }
 
 export const deleteReadListById = (id) => async (dispatch, getState) => {
+
     const state = getState();
+
+    axios({
+        method: "PATCH",
+        url: `${urlAuth}api/v1/users/reading-history/${state.user.value.id}`,
+        data: {
+            mangaId: id
+        }
+    })
+    .then(({data})=>{
+        console.log(data);
+    })
+    .catch((err)=>{
+        console.log(err);
+    })
+
     let readList = [...state.manga.readList];
     let mangaIdx = readList.findIndex((item) => item.mangaId === id)
     delete readList[mangaIdx]

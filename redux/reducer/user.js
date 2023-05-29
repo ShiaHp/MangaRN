@@ -3,7 +3,7 @@ import axios from "axios";
 import { setReadList } from "./manga";
 import { storeData, getData } from "../../features/asyncStorage";
 
-export const urlAuth = 'http://localhost:3033/'
+export const urlAuth = 'http://192.168.1.5:3033/'
 
 const initialState = {
     value: null
