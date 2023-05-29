@@ -192,6 +192,56 @@ export const getLatestMangas = (offset) => (dispatch) => {
         })
 }
 
+export const getPopularMangas = (offset) => (dispatch) => {
+    axios({
+        url: `${url}/api/v1/manga`,
+        method: 'GET',
+        params: {
+            limit: 10,
+            // offset: offset * 20,
+            includes: ["cover_art"],
+            'order[followedCount]': "desc",
+            hasAvailableChapters: true
+        }
+    })
+        .then((payload) => {
+            const mangaList = payload.data.data.data
+            var cover = null
+            mangaList.forEach((element, index) => {
+                cover = element.relationships.filter(item => item.type === "cover_art")[0]
+                mangaList[index].cover = cover
+            });
+            dispatch(setManga(mangaList))
+        })
+        .catch((err) => {
+            console.log('Get manga error', err);
+        })
+}
+export const getRecommendedMangas = (offset) => (dispatch) => {
+    axios({
+        url: `${url}/api/v1/manga`,
+        method: 'GET',
+        params: {
+            limit: 10,
+            // offset: offset * 20,
+            includes: ["cover_art"],
+            'order[createdAt]': "desc",
+        }
+    })
+        .then((payload) => {
+            const mangaList = payload.data.data.data
+            var cover = null
+            mangaList.forEach((element, index) => {
+                cover = element.relationships.filter(item => item.type === "cover_art")[0]
+                mangaList[index].cover = cover
+            });
+            dispatch(setManga(mangaList))
+        })
+        .catch((err) => {
+            console.log('Get manga error', err);
+        })
+}
+
 
 
 // export const randomManga = (payload) => (dispatch) => {

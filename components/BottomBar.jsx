@@ -78,15 +78,35 @@ export default function BottomBar() {
       />
 
       <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
+        name="Discovery"
+        component={DiscoveryScreen}
         options={{
-          tabBarLabel: "Settings",
+          tabBarLabel: 'Discovery',
           tabBarIcon: ({ color, size }) => {
-            return <Icon name="cog" size={size} color={color} />;
+            return <Icon name="earth" size={size} color={color} />;
           },
         }}
       />
+      {/* <Tab.Screen
+        name="Saved"
+        component={SavedScreen}
+        options={{
+          tabBarLabel: "Settings",
+          tabBarIcon: ({ color, size }) => {
+            return <Icon name="bookmark" size={size} color={color} />;
+          },
+        }}
+      />
+      <Tab.Screen
+        name="History"
+        component={HistoryScreen}
+        options={{
+          tabBarLabel: 'History',
+          tabBarIcon: ({ color, size }) => {
+            return <Icon name="history" size={size} color={color} />;
+          },
+        }}
+      /> */}
     </Tab.Navigator>
   );
 }
