@@ -23,26 +23,26 @@ const RedirectScreen = () => {
     // dispatch(getReadListFromStore());
     // storeData('readList', null);
   }, []);
-  useMemo(()=>{
-    if(user) dispatch(getReadListFromStore())
-  },[user])
+  useMemo(() => {
+    if (user) dispatch(getReadListFromStore());
+  }, [user]);
   return (
     <>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-          {user ? (
+          {/* {user ? ( */}
             <>
               <Stack.Screen name="Home" component={HomeView} />
               <Stack.Screen name="Search" component={SearchView} />
               <Stack.Screen name="Detail" component={DetailView} />
               <Stack.Screen name="Reader" component={ReadView} />
             </>
-          ) : (
+          {/* ) : ( */}
             <>
               <Stack.Screen name="Login" component={LoginView} />
               <Stack.Screen name="Register" component={RegisterView} />
             </>
-          )}
+          {/* )} */}
         </Stack.Navigator>
       </NavigationContainer>
     </>

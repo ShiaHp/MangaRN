@@ -31,6 +31,7 @@ function HistoryView() {
     // let temp = -Infinity;
     let arr = {};
     let temp = "";
+    console.log(readList);
     readList?.forEach((item, idx) => {
       let key = new Date(readList[idx].lastTimeRead)
         .toLocaleString("vi")

@@ -4,9 +4,9 @@ import json from '../../example.json'
 import { storeData } from "../../features/asyncStorage";
 import { getData } from "../../features/asyncStorage";
 import { urlAuth } from './user'
-export const urlManga = 'http://192.168.1.5:3032'
-// export const urlManga = 'http://localhost:3032'
-// export const urlManga = 'http://192.168.23.48:3032'
+// export const urlManga = 'http://192.168.1.5:3032'
+export const urlManga = 'http://localhost:3032'
+// export const urlManga = 'http://10.60.12.188:3032'
 
 const initialState = {
     manga: [],
@@ -194,7 +194,7 @@ export const getLatestMangas = (offset) => (dispatch) => {
 
 export const getPopularMangas = (offset) => (dispatch) => {
     axios({
-        url: `${url}/api/v1/manga`,
+        url: `${urlManga}/api/v1/manga`,
         method: 'GET',
         params: {
             limit: 10,
@@ -204,11 +204,10 @@ export const getPopularMangas = (offset) => (dispatch) => {
             hasAvailableChapters: true
         }
     })
-        .then((payload) => {
-            const mangaList = payload.data.data.data
-            var cover = null
+        .then(({data}) => {
+            const mangaList = data.data.data
             mangaList.forEach((element, index) => {
-                cover = element.relationships.filter(item => item.type === "cover_art")[0]
+                let cover = element.relationships.filter(item => item.type === "cover_art")[0]
                 mangaList[index].cover = cover
             });
             dispatch(setManga(mangaList))
@@ -219,7 +218,7 @@ export const getPopularMangas = (offset) => (dispatch) => {
 }
 export const getRecommendedMangas = (offset) => (dispatch) => {
     axios({
-        url: `${url}/api/v1/manga`,
+        url: `${urlManga}/api/v1/manga`,
         method: 'GET',
         params: {
             limit: 10,

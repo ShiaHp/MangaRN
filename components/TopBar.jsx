@@ -11,16 +11,17 @@ import {
   TouchableRipple,
 } from "react-native-paper";
 // import Style from "./TopBarStyle.js"
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { logOut } from "../redux/reducer/user";
 
 function TopBar() {
   const theme = useTheme();
   const style = styles(theme);
-  const [visible, setVisible] = React.useState(false);
+  const [visible, setVisible] = React.useState(true);
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
   const dispatch = useDispatch();
+  const user = useSelector((state)=>state.user.value)
   const onLogOutPressed = () => {
     dispatch(logOut());
   };
@@ -50,9 +51,20 @@ function TopBar() {
         <Modal
           visible={visible}
           onDismiss={hideModal}
-          contentContainerStyle={style.modalContent}
+          contentContainerStyle={{
+            backgroundColor : theme.colors.elevation.level2,
+            paddingHorizontal: 30,
+            paddingVertical : 20,
+            marginHorizontal : 30,
+            borderRadius : 5
+          }}
           style={style.modalWrapper}
+          
         >
+          <Text style={{fontWeight:'bold', fontSize: 25, textAlign : 'center'}}>{user||'Unamed'}</Text>
+          <Button mode="contained" style={{marginBottom: 20}} onPress={onLogOutPressed}>
+            Your favorite
+          </Button>
           <Button mode="contained" onPress={onLogOutPressed}>
             Log out
           </Button>

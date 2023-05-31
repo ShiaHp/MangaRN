@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Text, BottomNavigation } from "react-native-paper";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import HomeScreen from "./HomeScreen";
+import DiscoveryScreen from "./DiscoveryScreen";
 import { HistoryView } from "../views";
 const Tab = createBottomTabNavigator();
 

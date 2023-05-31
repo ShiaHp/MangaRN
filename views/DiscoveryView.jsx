@@ -6,7 +6,6 @@ import {
     Portal,
     BottomNavigation,
 } from "react-native-paper";
-import { StyleSheet } from "react-native";
 
 import { useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -30,12 +29,5 @@ function DiscoveryView() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-    },
-});
 
 export default withTheme(DiscoveryView);

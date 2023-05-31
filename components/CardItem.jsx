@@ -36,7 +36,7 @@ const onItemPress = ()=>{
             style={[styles.primaryText, , styles.textWrap]}
             numberOfLines={3}
           >
-            {item.attributes.title["en"]}
+            {item.attributes.title["en"]??item.attributes.title["ja-ro"]}
           </Text>
           <Text style={[styles.secondaryText, styles.textWrap]}>
             Chapter {item.attributes.lastChapter}

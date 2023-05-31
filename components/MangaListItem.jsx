@@ -20,11 +20,5 @@ const MangaListItem = () => {
     />;
 };
 
-const style = StyleSheet.create({
-    leftComponent: {
-        flex: 1,
-        aspectRatio: 9/16,
-    }
-})
 
 export default MangaListItem;
