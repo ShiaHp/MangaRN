@@ -22,8 +22,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 
 
-
-
 const ReadView = ({ route, navigation }) => {
   const { chapterId, title, volume, chapter } = route.params;
   const [pages, setPages] = useState(null);
@@ -44,6 +42,12 @@ const ReadView = ({ route, navigation }) => {
     height: Dimensions.get("screen").height,
   });
 
+  const isCloseToBottom = (e) => {
+    const { layoutMeasurement, contentSize, contentOffset } = e.nativeEvent;
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom;
+  };
   // let chapterId = "b5cbe34b-89b3-46a2-86b7-2e92797c5cb9";
   // let title = "title";
   // let volume = 3;
@@ -57,48 +61,30 @@ const ReadView = ({ route, navigation }) => {
       });
     }
     fetchData()
-      .then((res) => {
-        var promises = [];
-        temp.current = 0;
+      .then(async (res) => {
+       const pageObj = [];
+        // temp.current = 0;
         setNextChapter(res.data.nextChapterItem);
         setPrevChapter(res.data.preChapterItem);
-
-        res.data.constructedUrls.forEach((src, index) => {
-          promises.push(
-            new Promise((resolve, reject) => {
-              Image.getSize(
-                src,
-                (width, height) => {
-                  let id = src.slice(-11, -4);
-                  let currentHeight = imageDimensions.width / (width / height);
-                  temp.current += currentHeight;
-                  resolve({
-                    width,
-                    height: currentHeight,
-                    src,
-                    id,
-                    index,
-                    offset: temp.current,
-                  });
-                },
-                reject
-              );
-            })
-          );
-        });
-        Promise.all(promises)
-          .then((result) => {
-            setPages(result);
-            setIsLoading(false);
-          })
-          .catch((err) => {
-            console.error(err);
+        await Promise.all(res.data.constructedUrls.map(async (url, index) => {
+          const regex = /\/.*-([a-f0-9]{64})\./;
+          const data = await new Promise((resolve) => {
+            Image.getSize(url, (width, height) => {
+              let id = url.match(regex)[1];
+              let currentHeight = Math.round(imageDimensions.width / (width / height));
+              temp.current += currentHeight;
+              resolve({ width, height: currentHeight, url, id, index, offset: temp.current });
+            });
           });
+          pageObj.push(data);
+        }));
+        setPages(pageObj);
+        setIsLoading(false)
       })
       .catch((err) => {
         console.error(err);
       });
-  }, [chapterId]);
+  }, [chapterId, pages]);
   const moveChapter = (val) => {
     if (val > 0) {
       navigation.navigate("Reader", {
@@ -143,7 +129,7 @@ const ReadView = ({ route, navigation }) => {
     );
   };
 
-  const onScroll = (e) => {
+  const onScroll = async (e) => {
     const { y } = e.nativeEvent.contentOffset;
     const t = [{ offset: 0 }, ...pages];
     for (let i = 1; i < t.length; i++) {
@@ -151,6 +137,9 @@ const ReadView = ({ route, navigation }) => {
         setidx(i);
         break;
       }
+    }
+    if (isCloseToBottom(e)) {
+
     }
   };
 
@@ -202,12 +191,14 @@ const ReadView = ({ route, navigation }) => {
         </Appbar.Header>
         {isScrollReadMode ? (
           <View>
-            <ScrollView onScroll={onScroll} scrollEventThrottle={100}>
+            <ScrollView onScroll={onScroll} scrollEventThrottle={400}
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false} >
             {pages.map((item, index) => (
               <ExpoFastImage
                 key={index}
                 cacheKey={item.id}
-                uri={item.src}
+                uri={item.url}
                 resizeMode="contain"
                 style={{
                   width: imageDimensions.width - 10,
@@ -236,13 +227,11 @@ const ReadView = ({ route, navigation }) => {
                   <ExpoFastImage
                     key={index}
                     cacheKey={item.id}
-                    uri={item.src}
+                    uri={item.url}
                     resizeMode="contain"
                     style={{
                       width: imageDimensions.width - 10,
                       height: item.height,
-                      marginBottom: 5,
-                      marginHorizontal: 5,
                     }}
                   />
                 )}
@@ -252,7 +241,7 @@ const ReadView = ({ route, navigation }) => {
               style={{
                 position: "absolute",
                 width: imageDimensions.width,
-                height: imageDimensions.height - 60,
+                height: imageDimensions.height,
                 flex: 1,
                 flexDirection: "row",
                 zIndex: 5,

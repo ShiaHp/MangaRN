@@ -107,7 +107,7 @@ const ChapterList = () => {
   const navigation = useNavigation();
   const onChapterPress = (chapterId, title, volume, chapter) => {
     console.log({id, chapterId, chapter, title});
-    dispatch(storeReadList(id, chapterId, chapter, title));
+    // dispatch(storeReadList(id, chapterId, chapter, title));
     dispatch(setReadListChapter(chapterId));
     navigation.navigate("Reader", { chapterId, title, volume, chapter });
   };
@@ -330,7 +330,7 @@ function DetailView({ navigation, route }) {
               icon="play"
               mode="contained"
               style={{ marginTop: 10 }}
-              // onPress={() => startReading()}
+              onPress={() => startReading()}
             >
               Start Reading
             </Button>
