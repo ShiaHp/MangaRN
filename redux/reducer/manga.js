@@ -6,8 +6,9 @@ import { storeData } from "../../features/asyncStorage";
 import { getData } from "../../features/asyncStorage";
 import { urlAuth } from './user'
 
-// export const urlManga = 'http://192.168.1.5:3032'
-export const urlManga = 'http://192.168.1.126:3032'
+export const urlManga = 'http://192.168.1.16:3032'
+
+// export const urlManga = 'http://192.168.1.126:3032'
 // export const urlManga = 'http://10.60.12.188:3032'
 
 const initialState = {

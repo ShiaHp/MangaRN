@@ -1,6 +1,6 @@
 import { useTheme, withTheme } from "react-native-paper";
 import React, { useEffect, useRef, useState } from "react";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { GestureHandlerRootView, TouchableWithoutFeedback, TouchableNativeFeedback } from "react-native-gesture-handler";
 import Carousel from "react-native-reanimated-carousel";
 import {
   StyleSheet,
@@ -30,6 +30,10 @@ const ReadView = ({ route, navigation }) => {
   const theme = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [isSnackbarVisible, setSnackbarVisible] = useState(false);
+  const [currentChapterId, setCurrentChapterId] = useState(chapterId);
+  const [loadedChapters, setLoadedChapters] = useState([]);
+  const [isHiddenTop, setHiddenTop] = useState(false);
+
   const [nextChapter, setNextChapter] = useState();
   const [prevChapter, setPrevChapter] = useState();
   const onToggleSnackBar = () => setSnackbarVisible(!isSnackbarVisible);
@@ -42,6 +46,62 @@ const ReadView = ({ route, navigation }) => {
     height: Dimensions.get("screen").height,
   });
 
+  const fetchChapterData = async (chapterId) => {
+    return await axios({
+      url: `${urlManga}/api/v1/manga/chapter/image/${chapterId}`,
+      method: "GET",
+    });
+  };
+
+  const loadNextChapter = async () => {
+    if (nextChapter) {
+      setLoadedChapters([...loadedChapters, nextChapter]);
+      // setIsLoading(true);
+      fetchChapterData(nextChapter.id)
+        .then(async (res) => {
+          const pageObj = [...pages];
+          const pageObjNextChapter = [];
+          setNextChapter(res.data.nextChapterItem);
+          setPrevChapter(res.data.preChapterItem);
+          const randomImageUrl = 'https://e0.pxfuel.com/wallpapers/134/765/desktop-wallpaper-popular-mobile-276-loading-please-wait.jpg';
+          const randomImage = await new Promise((resolve) => {
+            Image.getSize(randomImageUrl, (width, height) => {
+              resolve({
+                width,
+                height,
+                url: randomImageUrl,
+                id: 'random-image',
+                index: pageObjNextChapter.length,
+                offset: 0, // Set the offset as desired for the random image
+              });
+            });
+          });
+          pageObjNextChapter.push(randomImage);
+
+          await Promise.all(res.data.constructedUrls.map(async (url, index) => {
+            const regex = /\/.*-([a-f0-9]{64})\./;
+            const data = await new Promise((resolve) => {
+              Image.getSize(url, (width, height) => {
+                let id = url.match(regex)[1];
+                let currentHeight = Math.round(imageDimensions.width / (width / height));
+                temp.current += currentHeight;
+                resolve({ width, height: currentHeight, url, id, index, offset: temp.current });
+              });
+            });
+            pageObjNextChapter.push(data);
+          }));
+          setPages([...pageObj, ...pageObjNextChapter]);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    } else {
+      console.log("No next chapter available");
+    }
+  };
+
+
   const isCloseToBottom = (e) => {
     const { layoutMeasurement, contentSize, contentOffset } = e.nativeEvent;
     const paddingToBottom = 20;
@@ -53,17 +113,11 @@ const ReadView = ({ route, navigation }) => {
   // let volume = 3;
   // let chapter = 2;
   useEffect(() => {
+
     setIsLoading(true);
-    async function fetchData() {
-      return await axios({
-        url: `${urlManga}/api/v1/manga/chapter/image/${chapterId}`,
-        method: "GET",
-      });
-    }
-    fetchData()
+    fetchChapterData(chapterId)
       .then(async (res) => {
        const pageObj = [];
-        // temp.current = 0;
         setNextChapter(res.data.nextChapterItem);
         setPrevChapter(res.data.preChapterItem);
         await Promise.all(res.data.constructedUrls.map(async (url, index) => {
@@ -84,7 +138,8 @@ const ReadView = ({ route, navigation }) => {
       .catch((err) => {
         console.error(err);
       });
-  }, [chapterId, pages]);
+  }, [chapterId]);
+
   const moveChapter = (val) => {
     if (val > 0) {
       navigation.navigate("Reader", {
@@ -129,6 +184,7 @@ const ReadView = ({ route, navigation }) => {
     );
   };
 
+
   const onScroll = async (e) => {
     const { y } = e.nativeEvent.contentOffset;
     const t = [{ offset: 0 }, ...pages];
@@ -139,9 +195,9 @@ const ReadView = ({ route, navigation }) => {
       }
     }
     if (isCloseToBottom(e)) {
-
-    }
+      loadNextChapter();
   };
+  }
 
   const movePage = (val) => {
     if (val > 0) {
@@ -168,7 +224,7 @@ const ReadView = ({ route, navigation }) => {
     Platform.OS !== "web" ? (
       <>
         {/* app */}
-        <Appbar.Header
+        { isHiddenTop ? <></> : <Appbar.Header
           style={{
             backgroundColor: theme.colors.background,
             zIndex: 5,
@@ -188,18 +244,24 @@ const ReadView = ({ route, navigation }) => {
             />
           </View>
           <Appbar.Action icon="book-open" onPress={onChangeMode} />
-        </Appbar.Header>
+        </Appbar.Header>}
         {isScrollReadMode ? (
-          <View>
+
             <ScrollView onScroll={onScroll} scrollEventThrottle={400}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false} >
-            {pages.map((item, index) => (
+
+              {pages.map((item, index) => (
+                 <TouchableWithoutFeedback onPress={() => {
+
+                  setHiddenTop(!isHiddenTop);
+                }}>
               <ExpoFastImage
                 key={index}
                 cacheKey={item.id}
                 uri={item.url}
                 resizeMode="contain"
+
                 style={{
                   width: imageDimensions.width - 10,
                   height: item.height,
@@ -207,10 +269,12 @@ const ReadView = ({ route, navigation }) => {
                   marginHorizontal: 5,
                 }}
               />
+               </TouchableWithoutFeedback>
             ))}
 
+
           </ScrollView>
-          </View>
+
 
         ) : (
           <GestureHandlerRootView>
@@ -265,7 +329,7 @@ const ReadView = ({ route, navigation }) => {
             </View>
           </GestureHandlerRootView>
         )}
-     <View style={styles.container}>
+     { isHiddenTop ? <></> : <View style={styles.container}>
       <TouchableOpacity style={styles.iconContainerLeft}>
         <Ionicons name="information-circle" size={24} color="white" />
       </TouchableOpacity>
@@ -278,7 +342,7 @@ const ReadView = ({ route, navigation }) => {
         <AntDesign name="caretright" size={20} color="black" onPress={() => moveChapter(1)} />
         </TouchableOpacity>
       </View>
-    </View>
+    </View>}
       </>
     ) : (
       // webb
@@ -446,4 +510,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withTheme(ReadView);
+export default withTheme(ReadView)
+
