@@ -14,7 +14,7 @@ const UserName = new Schema({
         {
           mangaTitle: {
             type: String,
-            required: true,
+            // required: true,
           },
           mangaId : {
             type: String,
@@ -22,11 +22,11 @@ const UserName = new Schema({
           },
           lastChapter: {
             type: Number,
-            required: true,
+            // required: true,
           },
           lastPage: {
             type: Number,
-            required: true,
+            // required: true,
           },
           lastTimeRead: {
             type: Number

@@ -4,7 +4,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { memo } from "react";
 import { useNavigation } from "@react-navigation/native";
 const CardItem = memo(({ item }) => { 
-  // console.log("render item");
   const navigation = useNavigation()
 const onItemPress = ()=>{
   navigation.navigate("Detail",{

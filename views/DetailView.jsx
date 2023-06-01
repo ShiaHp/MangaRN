@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
+import axios from "axios";
 import Markdown from "react-native-markdown-display";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme, withTheme } from "react-native-paper";
@@ -31,6 +32,7 @@ import {
 import Icon from "react-native-paper/src/components/Icon";
 import { useNavigation } from "@react-navigation/native";
 import read from "../example.json";
+import { urlAuth,changeUser } from "../redux/reducer/user";
 
 const PageRenderer = ({ times }) => {
   const arr = Array(times).fill(null);
@@ -106,7 +108,7 @@ const ChapterList = () => {
   console.log("llistChapter", listChapter);
   const navigation = useNavigation();
   const onChapterPress = (chapterId, title, volume, chapter) => {
-    console.log({id, chapterId, chapter, title});
+    console.log({ id, chapterId, chapter, title });
     dispatch(storeReadList(id, chapterId, chapter, title));
     dispatch(setReadListChapter(chapterId));
     navigation.navigate("Reader", { chapterId, title, volume, chapter });
@@ -164,7 +166,7 @@ const ChapterList = () => {
                 </Text>
                 <Text style={[style.whiteText]}>
                   {item.attributes.updatedAt?.slice(0, 10)} -{" "}
-                  {item.trans?.attributes.name??"Unknown"}
+                  {item.trans?.attributes.name ?? "Unknown"}
                 </Text>
               </View>
               <IconButton
@@ -204,6 +206,7 @@ function DetailView({ navigation, route }) {
   const { detailManga, detailFirstChapter } = useSelector(
     (state) => state.manga
   );
+  const user = useSelector((state) => state.user.value);
   // const [page, setPage] = useState(1);
   // const id = "34f45c13-2b78-4900-8af2-d0bb551101f4"
   useEffect(() => {
@@ -213,6 +216,19 @@ function DetailView({ navigation, route }) {
       dispatch(setDetailManga(null));
     };
   }, [id]);
+  const onFavoritePressed = () =>{
+    axios({
+      url : `${urlAuth}api/v1/users/favorites/${user.id}`,
+      method : 'PUT',
+      data : {
+        newMangaId : id
+      }
+    })
+    .then(({data})=>{
+      console.log(data);
+      dispatch(changeUser(data.user))
+    })
+  }
   const theme = useTheme();
   const style = DetailViewStyle(theme);
 
@@ -240,7 +256,14 @@ function DetailView({ navigation, route }) {
             }}
           />
           <View style={style.actionContainer}>
-            <Appbar.Action icon="bookmark" onPress={() => {}} />
+            <TouchableOpacity onPress={onFavoritePressed}>
+              {user.favoritesManga.includes(id) ? (
+                <Appbar.Action icon="bookmark" />
+              ) : (
+                <Appbar.Action icon="bookmark-outline" />
+              )}
+            </TouchableOpacity>
+
             <Appbar.Action icon="share-variant" onPress={() => {}} />
             <Appbar.Action icon="download" onPress={() => {}} />
           </View>

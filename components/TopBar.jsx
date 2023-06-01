@@ -13,18 +13,25 @@ import {
 // import Style from "./TopBarStyle.js"
 import { useDispatch, useSelector } from "react-redux";
 import { logOut } from "../redux/reducer/user";
+import { useNavigation } from "@react-navigation/native";
 
 function TopBar() {
   const theme = useTheme();
   const style = styles(theme);
-  const [visible, setVisible] = React.useState(true);
+  const [visible, setVisible] = React.useState(false);
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
   const dispatch = useDispatch();
   const user = useSelector((state)=>state.user.value)
+  const navigation = useNavigation()
   const onLogOutPressed = () => {
     dispatch(logOut());
   };
+
+  const onFavoritePressed = () =>{
+    setVisible(false)
+    navigation.navigate('Favorite')
+  }
   return (
     <>
       <Appbar.Header
@@ -61,8 +68,8 @@ function TopBar() {
           style={style.modalWrapper}
           
         >
-          <Text style={{fontWeight:'bold', fontSize: 25, textAlign : 'center'}}>{user||'Unamed'}</Text>
-          <Button mode="contained" style={{marginBottom: 20}} onPress={onLogOutPressed}>
+          <Text style={{fontWeight:'bold', fontSize: 25, textAlign : 'center', marginBottom:20}}>{user.email||'Unamed'}</Text>
+          <Button mode="outlined" icon={'star-box'} style={{marginBottom: 20}} onPress={onFavoritePressed}>
             Your favorite
           </Button>
           <Button mode="contained" onPress={onLogOutPressed}>
