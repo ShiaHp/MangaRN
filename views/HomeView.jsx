@@ -20,9 +20,7 @@ function HomeView() {
   return (
     <>
       <View style={style.container}>
-        <View>
           <TopBar />
-        </View>
           <BottomBar />
       </View>
     </>

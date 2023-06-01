@@ -9,9 +9,9 @@ import { useDispatch } from "react-redux";
 
 function RegisterView({ navigation }) {
     const dispatch = useDispatch()
-    const [username, setUsername] = useState('test7@123.com');
-    const [password, setPassword] = useState('123456');
-    const [repPassword, setRepPassword] = useState('123456')
+    const [username, setUsername] = useState(null);
+    const [password, setPassword] = useState(null);
+    const [repPassword, setRepPassword] = useState(null)
     const style = Style()
 
     const onRegisterPressed = ()=>{

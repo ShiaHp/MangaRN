@@ -353,7 +353,7 @@ function DetailView({ navigation, route }) {
               icon="play"
               mode="contained"
               style={{ marginTop: 10 }}
-              // onPress={() => startReading()}
+              onPress={() => startReading()}
             >
               Start Reading
             </Button>
