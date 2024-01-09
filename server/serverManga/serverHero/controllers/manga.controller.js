@@ -171,7 +171,7 @@ module.exports = {
 
       const hash = data.data.chapter.hash
       const images = data.data.chapter.data
-      console.log(nextChapterItem)
+
       const constructedUrls = images.map((image) => `${baseUploadUrl}data/${hash}/${image}`)
       res.status(200).json({
         message: 'Success',

@@ -184,7 +184,18 @@ const ReadView = ({ route, navigation }) => {
     );
   };
 
-
+  const showDiffInfor = () => {
+    Alert.alert(
+      "Information",
+      `Title: ${title}\nVolume: ${volume}\nChapter: ${chapter}`,
+      [
+        {
+          text: "OK",
+          onPress: () => console.log("OK Pressed"),
+        },
+      ]
+    );
+  };
   const onScroll = async (e) => {
     const { y } = e.nativeEvent.contentOffset;
     const t = [{ offset: 0 }, ...pages];
@@ -331,7 +342,7 @@ const ReadView = ({ route, navigation }) => {
         )}
      { isHiddenTop ? <></> : <View style={styles.container}>
       <TouchableOpacity style={styles.iconContainerLeft}>
-        <Ionicons name="information-circle" size={24} color="white" />
+        <Ionicons name="information-circle" size={24} color="white" onPress={() => showDiffInfor()} />
       </TouchableOpacity>
       <View style={styles.iconContainerMiddle}></View>
       <View style={styles.iconContainerRight}>

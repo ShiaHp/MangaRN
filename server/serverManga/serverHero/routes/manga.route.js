@@ -8,7 +8,7 @@ const {
   getListChapter,
   detailManga,
   startChapter
-} = require("../controllers/hero.controller.js");
+} = require("../controllers/manga.controller.js");
 const auth = require("../middleware/verifyToken.js");
 
 // get manga with search/filter parameters

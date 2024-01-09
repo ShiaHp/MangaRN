@@ -3,7 +3,9 @@ const router = express.Router()
 const { login, register, profile, updateProfile } = require('../controllers/auth.controller.js')
 const User = require('../models/user.model.js')
 
-router.route('/register').post(register)
+// RESTFUL API
+// GET POST PUT PATCH DELETE
+router.route('/register').post(register);
 router.route('/login').post(login)
 router.route('/profile/:id').get(profile).patch(updateProfile)
 router.get('/reading-history/:userId', async (req, res) => {
@@ -14,28 +16,41 @@ router.get('/reading-history/:userId', async (req, res) => {
     res.json(user.readingHistory);
 });
 router.put('/reading-history/:userId', async (req, res) => {
-    const { mangaTitle, mangaId, lastChapter, lastPage, lastTimeRead, chapterId } = req.body;
-    const user = await User.findByIdAndUpdate(
-        req.params.userId,
-        {
-            $push: {
-                readingHistory: {
-                    mangaTitle,
-                    lastChapter,
-                    lastPage,
-                    mangaId,
-                    lastTimeRead,
-                    chapterId,
-                },
-            },
-        },
-        { new: true },
-    );
-    if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+    const { mangaTitle, mangaId, lastChapter, lastPage, lastTimeRead, chapterId, coverArt } = req.body;
+    try {
+        const user = await User.findById(req.params.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const index = user.readingHistory.findIndex((item) => item.mangaId === mangaId);
+        if (index > -1) {
+            // If mangaId already exists, return without updating
+            return res.json(user.readingHistory);
+        }
+
+        // If mangaId doesn't exist, update the readingHistory array
+        user.readingHistory.push({
+            mangaTitle,
+            lastChapter,
+            lastPage,
+            mangaId,
+            lastTimeRead,
+            chapterId,
+            coverArt
+        });
+        
+        await user.save();
+
+        res.json(user.readingHistory);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
     }
-    res.json(user.readingHistory);
 });
+
+
+
 router.patch('/reading-history/:userId', async(req,res) => {
     try {
         const {  mangaId } = req.body;

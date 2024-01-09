@@ -3,7 +3,7 @@ const morgan = require('morgan')
 const app = express();
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const heroRouter = require('./routes/hero.route');
+const mangaRouter = require('./routes/manga.route');
 const dotenv = require('dotenv')
 const cors = require('cors');
 
@@ -44,7 +44,7 @@ app.get('/api/v1', (req, res) => {
   res.json({msg : 'API'})
 })
 
-app.use('/api/v1/manga',heroRouter)
+app.use('/api/v1/manga',mangaRouter)
 
 
 const start = async () => {

@@ -35,8 +35,8 @@ function LoginView({ navigation }) {
                     placeholder="Password"
                     left={<TextInput.Icon icon="lock" />}
                 ></TextInput>
-                <Text style={style.forgotText}>Forgot your password?</Text>
-                <Button mode="contained" onPress={()=>onLoginPressed()}>Login</Button>
+               
+               <Button style={{ marginTop: 10 }} mode="contained" onPress={() => onLoginPressed()}>Login</Button>
                 <Button
                     mode="outlined"
                     style={style.button}
@@ -45,7 +45,7 @@ function LoginView({ navigation }) {
                     Register
                 </Button>
                 <Pressable>
-                    <Text style={style.guestText} onPress={() => navigation.navigate("Home")}>Join As Guest</Text>
+                    <Text style={style.guestText} onPress={() => navigation.navigate("")}>Join As Guest</Text>
                 </Pressable>
             </View>
         </View>

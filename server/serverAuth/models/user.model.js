@@ -38,6 +38,9 @@ const UserName = new Schema({
             type: Date,
             default: Date.now(),
           },
+          coverArt: {
+            type: String,
+          }
         },
       ],
     lastName: {

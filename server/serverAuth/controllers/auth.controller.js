@@ -15,7 +15,7 @@ const signToken = id => {
 const register = async (req, res, next) => {
     try {
       const { email, password } = req.body;
-      console.log(req.body)
+    console.log( email, password )
       if (!email || !password) {
           return res.status(400).json({
               message: 'Please provide all values'

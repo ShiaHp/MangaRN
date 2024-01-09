@@ -2,9 +2,10 @@ import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import { setReadList } from "./manga";
 import { storeData, getData } from "../../features/asyncStorage";
+import Toast from 'react-native-toast-message';
+export const urlAuth = 'http://192.168.1.72:3033/'
+// export const urlAuth = 'http://localhost:3033/'
 
-// export const urlAuth = 'http://10.60.12.188:3033/'
-export const urlAuth = 'http://localhost:3033/'
 
 const initialState = {
     value: null
@@ -45,7 +46,7 @@ export const login = (payload) => (dispatch) => {
     })
         .then((data) => {
             dispatch(changeUser(data.data.user))
-
+            navigator.navigate('Home');
         })
         .catch((err) => {
             console.log(err);
@@ -61,51 +62,63 @@ export const register = (payload) => (dispatch) => {
         }
     })
         .then(({ data }) => {
-            console.log(data);
-            dispatch(changeUser(data.user))
+
+
+            Toast.show({
+                type: 'success',
+                position: 'bottom',
+                text1: 'Success',
+                text2: 'Register success'
+            });
+
+            dispatch(changeUser(data.user));
+            navigator.navigate('Home');
         })
         .catch((err) => {
+            Toast.show({
+                type: 'error',
+                position: 'bottom',
+                text1: 'Error',
+                text2: 'Register fail'
+            })
             console.log(err);
         })
 }
 export const updateHistory = (payload) => (dispatch, getState) => {
-    const state = getState()
-    const userId = state.user.id
-    const { mangaTitle, lastChapter, lastPage, mangaId, lastTimeRead, chapterId } = payload
+    const { mangaTitle, lastChapter, lastPage, mangaId, lastTimeRead, chapterId, coverArt } = payload;
+    const state = getState().user.value; 
+
+    const userId = state._id;
     axios({
         method: "PUT",
-        url: `${urlAuth}api/v1/users/reading-history`,
-        params: {
-            userId
-        },
+        url: `${urlAuth}api/v1/users/reading-history/${userId}`,
         data: {
             mangaTitle,
             lastChapter,
             lastPage,
             mangaId,
             lastTimeRead,
-            chapterId
+            chapterId,
+            coverArt
         }
     })
-        .then(({ data }) => {
-            console.log(data);
-            // dispatch(changeUser(data.user))
+        .then(( data ) => {
+            // dispatch(changeUser(data.data.user))
+            return;
         })
         .catch((err) => {
             console.log(err);
-        })
-}
+        });
+};
 
-export const getHistory = (dispatch) => {
+export const getHistory = (dispatch) => (dispatch, getState)  => {
+    const state = getState().user.value; 
+    const userId = state._id;
     axios({
         method: "GET",
-        url: `${urlAuth}api/v1/users/reading-history`,
-        params: {
-            userId
-        }
+        url: `${urlAuth}api/v1/users/reading-history/${userId}`,
     })
         .then(({ data }) => {
-            console.log(data);
             dispatch(setReadList(data))
         })
         .catch((err) => {

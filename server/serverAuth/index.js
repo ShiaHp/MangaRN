@@ -24,7 +24,7 @@ app.use(
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
       credentials: true, // allow session cookie from browser to pass through
     })
-  );
+);
 
 
   const connectDB = (url) => {
@@ -45,12 +45,12 @@ app.get('/api/v1', (req, res) => {
 })
 
 
-app.use('/api/v1/users',userRouter)
+app.use('/api/v1/users', userRouter)
 
 const start = async () => {
     try {
       await connectDB('mongodb+srv://shiawase:shiawase@cluster0.h4ezk.mongodb.net/AuthHero?retryWrites=true&w=majority');
-      app.listen( 3033, (req, res) => {
+      app.listen(3033, (req, res) => {
         console.log(`Server is running on port ${3033}`);
         console.log(`Connect to DB`);
       });

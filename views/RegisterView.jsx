@@ -1,8 +1,7 @@
-import { Text, View } from "react-native";
+import { Text, View, Keyboard } from "react-native";
 import React, { useState } from "react";
 import { withTheme, TextInput, Button } from "react-native-paper";
 import Style from "./Style";
-import axios from "axios";
 import { register } from "../redux/reducer/user";
 import { useDispatch } from "react-redux";
 // FIX TODO: STORE INFORMATION USER TO REDUX
@@ -14,10 +13,14 @@ function RegisterView({ navigation }) {
     const [repPassword, setRepPassword] = useState(null)
     const style = Style()
 
-    const onRegisterPressed = ()=>{
-        console.log({username,password,repPassword});
-        if(password === repPassword) dispatch(register({email : username, password : password}))
-    }
+
+    const onRegisterPressed = () => {
+        Keyboard.dismiss();
+        if (password === repPassword) {
+            dispatch(register({ email: username, password }));
+        }
+        
+    };
 
     return (
         <View style={style.flexContainer}>
@@ -50,7 +53,7 @@ function RegisterView({ navigation }) {
                     left={<TextInput.Icon icon='lock' />}
                     onChangeText={text => setRepPassword(text)}
                 ></TextInput>
-                {/* <Text style={style.forgotText} >Forgot your password?</Text> */}
+
                 <Button mode='contained' style={style.button} onPress={onRegisterPressed}>
                     Register
                 </Button>
@@ -61,7 +64,6 @@ function RegisterView({ navigation }) {
                 >
                     Back to login
                 </Button>
-                {/* <Text style={style.guestText}>Join As Guest</Text> */}
             </View>
         </View>
     );

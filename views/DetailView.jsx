@@ -29,10 +29,11 @@ import {
   setDetailManga,
   getDetailFirstChapter,
 } from "../redux/reducer/manga";
+
 import Icon from "react-native-paper/src/components/Icon";
 import { useNavigation } from "@react-navigation/native";
 import read from "../example.json";
-import { urlAuth,changeUser } from "../redux/reducer/user";
+import { urlAuth,changeUser, updateHistory } from "../redux/reducer/user";
 
 const PageRenderer = ({ times }) => {
   const arr = Array(times).fill(null);
@@ -105,7 +106,7 @@ const ChapterList = () => {
   const style = DetailViewStyle(theme);
   const dispatch = useDispatch();
   const listChapter = useSelector((state) => state.manga.listChapter);
-  console.log("llistChapter", listChapter);
+
   const navigation = useNavigation();
   const onChapterPress = (chapterId, title, volume, chapter) => {
     console.log({ id, chapterId, chapter, title });
@@ -206,16 +207,30 @@ function DetailView({ navigation, route }) {
   const { detailManga, detailFirstChapter } = useSelector(
     (state) => state.manga
   );
+ 
   const user = useSelector((state) => state.user.value);
   // const [page, setPage] = useState(1);
   // const id = "34f45c13-2b78-4900-8af2-d0bb551101f4"
   useEffect(() => {
     dispatch(getDetailManga(id));
     dispatch(getDetailFirstChapter(id));
+
     return () => {
       dispatch(setDetailManga(null));
     };
   }, [id]);
+
+  if (detailManga) {
+    // lastPage, mangaId, lastTimeRead, chapterId
+    dispatch(updateHistory({
+      mangaTitle: detailManga.attributes.title.en,
+      lastChapter: detailManga.attributes.lastChapter,
+      lastTimeRead: new Date().getTime(),
+      mangaId: detailManga.id,
+      chapterId: null,
+      coverArt: detailManga.cover.attributes.fileName
+    }));
+  }
   const onFavoritePressed = () =>{
     axios({
       url : `${urlAuth}api/v1/users/favorites/${user.id}`,
@@ -225,7 +240,6 @@ function DetailView({ navigation, route }) {
       }
     })
     .then(({data})=>{
-      console.log(data);
       dispatch(changeUser(data.user))
     })
   }

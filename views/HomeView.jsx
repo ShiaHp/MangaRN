@@ -1,17 +1,9 @@
 import {
   withTheme,
-  Button,
-  Searchbar,
-  Modal,
-  Portal,
-  BottomNavigation,
 } from "react-native-paper";
 import { StyleSheet } from "react-native";
 
-import { useState } from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import Style from "./Style";
 import { BottomBar, TopBar } from "../components/";
 

@@ -22,7 +22,7 @@ function TopBar() {
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
   const dispatch = useDispatch();
-  const user = useSelector((state)=>state.user.value)
+  const user = useSelector((state) => state.user.value)
   const navigation = useNavigation()
   const onLogOutPressed = () => {
     dispatch(logOut());
